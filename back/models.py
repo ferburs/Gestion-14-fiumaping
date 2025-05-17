@@ -1,15 +1,21 @@
-# # src/models.py
-# from flask_sqlalchemy import SQLAlchemy
+# src/models.py
+from flask_sqlalchemy import SQLAlchemy
 
-# db = SQLAlchemy()
+DATABASE = SQLAlchemy()
 
-# class Aula(db.Model):
-#     __tablename__ = 'aulas'
+class Aula(DATABASE.Model):
+    __tablename__ = 'aulas'
 
-#     id = db.Column(db.Integer, primary_key=True)
-#     codigo = db.Column(db.String(10), unique=True, nullable=False)
-#     tipo_banco = db.Column(db.String(50), nullable=False)
-#     tipo_pizarron = db.Column(db.String(50), nullable=False)
+    id = DATABASE.Column(DATABASE.Integer, primary_key=True)
+    codigo = DATABASE.Column(DATABASE.String(50), unique=True, nullable=False)
+    tipo_banco = DATABASE.Column(DATABASE.String(50), nullable=False)
+    tipo_pizarron = DATABASE.Column(DATABASE.String(50), nullable=False)
 
-#     def __repr__(self):
-#         return f"<Aula {self.codigo}>"
+
+    def __repr__(self):
+        return f"<Aula {self.codigo}>"
+    
+def get_aula_by_codigo(aula_codigo):
+    """Devuelve el aula con el ID especificado."""
+    aula = DATABASE.session.query(Aula).filter_by(codigo=aula_codigo).first()
+    return aula

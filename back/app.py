@@ -3,20 +3,25 @@ from flask_cors import CORS
 from config import Config
 from logger import get_logger
 from routes import register_routes
-#from models import db, Aula
+from models import DATABASE, Aula
+from sqlalchemy import text
 import signal
 import sys
 import logging
+import sqlite3
 
 
 # --- Inicializacion de la api ---
 app = Flask(__name__)
 
-
 Config.init()
 CORS(app, resources={r"/api/*": {"origins": Config.ALLOWED_ORIGINS}})
 app.config.from_object(Config)
 logger = get_logger()
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
+DATABASE.init_app(app)
+
 
 # --- Configuración de Logging ---
 logging.basicConfig(
@@ -58,16 +63,15 @@ signal.signal(signal.SIGINT, signal_handler)
 # --- Registrar las rutas de la API ---
 register_routes(app)
 
-# def preload_db():
-#     """Pre-carga la base de datos con datos iniciales."""
-#     # Aquí puedes agregar la lógica para precargar la base de datos.
-#     if Aula.query.first() is None:
-#         aulas = [
-#             Aula(codigo='101', tipo_banco='individual', tipo_pizarron='Tiza'),
-#             Aula(codigo='102', tipo_banco='Iglesia', tipo_pizarron='Marcador'),
-#         ]
-#         db.session.add_all(aulas)
-#         db.session.commit()
 
 if __name__ == "__main__":
+    with app.app_context():
+        conn = DATABASE.engine.raw_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.executescript(open('init_db.sql').read())
+            conn.commit()
+        finally:
+            conn.close()
+
     app.run(host="0.0.0.0", port=5000, debug=Config.DEBUG)
