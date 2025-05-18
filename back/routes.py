@@ -51,10 +51,22 @@ class MateriasGetTodas(Resource):
 
 @ns_materias.route("/<string:codigo_materia>")
 class MateriaHorariosGetPorCodigo(Resource):
-    def get(self):
+    def get(self, codigo_materia: str):
         """
         Devuelve todos los horarios de la materia
         """
+
+        aulas_materia = aulas_por_materia_get(codigo_materia)
+
+        return [
+            {
+                "aula": aula.to_dict(),
+                "dia_semana": aula_materia.dia_semana,
+                "hora_inicio": aula_materia.hora_inicio.strftime("%H:%M"),
+                "hora_fin": aula_materia.hora_fin.strftime("%H:%M"),
+            }
+            for aula_materia, aula in aulas_materia
+        ]
 
         
     

@@ -53,3 +53,36 @@ class Materia(DATABASE.Model):
 def materia_get_all() -> list[Materia]:
     """Devuelve todas las materias."""
     return DATABASE.session.query(Materia).all()
+
+
+class AulaMateria(DATABASE.Model):
+    __tablename__ = 'aula_materias'
+
+    id = DATABASE.Column(DATABASE.Integer, primary_key=True)
+    codigo_aula = DATABASE.Column(DATABASE.String(50), DATABASE.ForeignKey('aulas.codigo'))
+    codigo_materia = DATABASE.Column(DATABASE.String(50), DATABASE.ForeignKey('materias.codigo'))
+    dia_semana = DATABASE.Column(DATABASE.String(50), nullable=False)
+    hora_inicio = DATABASE.Column(DATABASE.Time, nullable=False)
+    hora_fin = DATABASE.Column(DATABASE.Time, nullable=False)
+
+    def to_dict(self):
+        return {
+            "codigo_aula": self.codigo_aula,
+            "codigo_materia": self.codigo_materia,
+            "dia_semana": self.dia_semana,
+            "hora_inicio": self.hora_inicio.strftime("%H:%M"),
+            "hora_fin": self.hora_fin.strftime("%H:%M"),
+        }
+    
+def aulas_por_materia_get(codigo_materia: str) -> list[dict]:
+    """Devuelve todas las aulas donde se dicta la materia, con horarios."""
+    return ( 
+        DATABASE.session.query(AulaMateria, Aula)
+                .join(Aula, AulaMateria.codigo_aula == Aula.codigo)
+                .filter(AulaMateria.codigo_materia == codigo_materia)
+                .all()
+    )
+
+
+#class atributoAula(DATABASE.model):
+ #   
