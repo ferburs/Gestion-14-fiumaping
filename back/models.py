@@ -89,7 +89,7 @@ def aulas_por_materia_get(codigo_materia: str) -> list[dict]:
     )
 
 
-class atributos(DATABASE.model):
+class atributos(DATABASE.Model):
     __tablename__ = 'atributos'
 
 
