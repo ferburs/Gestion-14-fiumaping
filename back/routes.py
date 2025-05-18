@@ -61,11 +61,12 @@ class MateriaHorariosGetPorCodigo(Resource):
         return [
             {
                 "aula": aula.to_dict(),
+                "materia": materia.to_dict(),
                 "dia_semana": aula_materia.dia_semana,
                 "hora_inicio": aula_materia.hora_inicio.strftime("%H:%M"),
                 "hora_fin": aula_materia.hora_fin.strftime("%H:%M"),
             }
-            for aula_materia, aula in aulas_materia
+            for aula_materia, aula, materia in aulas_materia
         ]
 
         

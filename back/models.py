@@ -13,6 +13,9 @@ class Aula(DATABASE.Model):
     posicion_x = DATABASE.Column(DATABASE.Float, nullable=True)
     posicion_y = DATABASE.Column(DATABASE.Float, nullable=True)
 
+    #atributos = DATABASE.relationship('Atributo', back_populates='aula', lazy=True, cascade="all, delete-orphan")
+
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -21,6 +24,7 @@ class Aula(DATABASE.Model):
             "tipo_banco": self.tipo_banco,
             "posicion_x": self.posicion_x,
             "posicion_y": self.posicion_y
+            #"atributos": [atributo.to_dict() for atributo in self.atributos]
         }
 
     def __repr__(self):
@@ -77,12 +81,34 @@ class AulaMateria(DATABASE.Model):
 def aulas_por_materia_get(codigo_materia: str) -> list[dict]:
     """Devuelve todas las aulas donde se dicta la materia, con horarios."""
     return ( 
-        DATABASE.session.query(AulaMateria, Aula)
+        DATABASE.session.query(AulaMateria, Aula, Materia)
                 .join(Aula, AulaMateria.codigo_aula == Aula.codigo)
+                .join(Materia, AulaMateria.codigo_materia == Materia.codigo)
                 .filter(AulaMateria.codigo_materia == codigo_materia)
                 .all()
     )
 
 
-#class atributoAula(DATABASE.model):
- #   
+class atributos(DATABASE.model):
+    __tablename__ = 'atributos'
+
+
+    id = DATABASE.Column(DATABASE.Integer, primary_key=True)
+    codigo_aula = DATABASE.Column(DATABASE.String(50), DATABASE.ForeignKey('aulas.codigo'))
+    nombre_atributo = DATABASE.Column(DATABASE.String(50), nullable=False)
+    valor = DATABASE.Column(DATABASE.Text, nullable=False)
+
+    aula = DATABASE.relationship('Aula', back_populates='atributos', lazy=True)
+
+
+    def __repr__(self):
+        return f"<Atributo {self.nombre_atributo}={self.valor} (Aula {self.codigo_aula})>"
+
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'codigo_aula': self.codigo_aula,
+            'nombre_atributo': self.nombre_atributo,
+            'valor': self.valor
+        }
