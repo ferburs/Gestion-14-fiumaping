@@ -1,3 +1,6 @@
+/// <reference path="./api.js" />
+
+
 document.addEventListener('DOMContentLoaded', function () {
     const selectAula = document.getElementById('selectAula');
     const btnBuscar = document.getElementById('btnBuscar');
@@ -5,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
   
     let datosAulas = {};
   
-    fetch('json/aulas.json')
+    fetch(getFullEndpoint('/api/v1/aulas/'))
       .then(response => {
         if (!response.ok) throw new Error('Error al cargar JSON');
         return response.json();
@@ -20,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
         Object.keys(datosAulas).forEach(aulaId => {
           const option = document.createElement('option');
           option.value = aulaId;
-          option.textContent = datosAulas[aulaId].titulo;
+          option.textContent = datosAulas[aulaId].codigo;
           selectAula.appendChild(option);
         });
   
@@ -35,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
         resultado.classList.remove('d-none');
       });
   
-    btnBuscar.addEventListener('click', () => {
+    selectAula.addEventListener('change', () => {
       const aulaSeleccionada = selectAula.value;
       const info = datosAulas[aulaSeleccionada];
   
@@ -43,10 +46,10 @@ document.addEventListener('DOMContentLoaded', function () {
         resultado.innerHTML = `
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">${info.titulo}</h5>
+              <h5 class="card-title">Aula ${info.codigo}</h5>
               <p class="card-text"><strong>Capacidad:</strong> ${info.capacidad}</p>
-              <p class="card-text"><strong>Tipo de bancos:</strong> ${info.bancos}</p>
-              <p class="card-text"><strong>Tipo de pizzarrón:</strong> ${info.pizzarron}</p>
+              <p class="card-text"><strong>Tipo de bancos:</strong> ${info.tipo_banco}</p>
+              <p class="card-text"><strong>Tipo de pizzarrón:</strong> ${info.tipo_pizarron}</p>
               <p class="card-text"><strong>Cantidad de enchufes:</strong> ${info.enchufes}</p>
               <p class="card-text"><strong>Pantalla para proyectar:</strong> ${info.pantalla_proyector}</p>
             </div>
