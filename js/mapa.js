@@ -3,6 +3,6 @@ var map = L.map('map', {
 });
 
 var bounds = [[0, 0], [191, 284]];
-var image = L.imageOverlay('images/mapa.png', bounds).addTo(map);
+var image = L.imageOverlay('images/dibujo_pb.png', bounds).addTo(map);
 
 map.fitBounds(bounds);
