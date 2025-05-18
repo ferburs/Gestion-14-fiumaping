@@ -89,7 +89,7 @@ def aulas_por_materia_get(codigo_materia: str) -> list[dict]:
     )
 
 
-class atributos(DATABASE.Model):
+class Atributos(DATABASE.Model):
     __tablename__ = 'atributos'
 
 
@@ -97,8 +97,6 @@ class atributos(DATABASE.Model):
     codigo_aula = DATABASE.Column(DATABASE.String(50), DATABASE.ForeignKey('aulas.codigo'))
     nombre_atributo = DATABASE.Column(DATABASE.String(50), nullable=False)
     valor = DATABASE.Column(DATABASE.Text, nullable=False)
-
-    aula = DATABASE.relationship('Aula', back_populates='atributos', lazy=True)
 
 
     def __repr__(self):
