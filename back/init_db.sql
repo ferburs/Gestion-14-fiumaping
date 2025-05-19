@@ -1,39 +1,17 @@
--- Aula pero con atributo
+--Aula pero con atributo
 
--- CREATE TABLE IF NOT EXISTS aulas{
+-- CREATE TABLE IF NOT EXISTS aulas2{
 --     id INTEGER PRIMARY KEY AUTOINCREMENT,
 --     codigo VARCHAR(50) NOT NULL,
 --     posicion_x FLOAT NULL,
 --     posicion_y FLOAT NULL,
 -- }
 
--- CREATE TABLE IF NOT EXISTS atributos (
---     id INTEGER PRIMARY KEY AUTOINCREMENT,
---     codigo_aula VARCHAR(50) NOT NULL,
---     nombre_atributo VARCHAR(50) NOT NULL,
---     valor TEXT NOT NULL,
---     FOREIGN KEY (codigo_aula) REFERENCES aulas(codigo)
--- );
-
--- INSERT INTO aulas (codigo, posicion_x, posicion_y) VALUES
+-- INSERT INTO aulas2 (codigo, posicion_x, posicion_y) VALUES
 -- ('200', NULL, NULL),
 -- ('201', NULL, NULL),
 -- ('202', NULL, NULL);
 
--- -- Atributos
--- INSERT INTO atributos_aula (codigo_aula, nombre_atributo, valor) VALUES
--- ('200', 'tipo_pizarron', 'Tiza'),
--- ('200', 'tipo_banco', 'individual'),
--- ('200', 'ventilacion', 'ventilador'),
--- ('200', 'Cantidad enchufes', '2'),
-
--- ('201', 'tipo_pizarron', 'Tiza'),
--- ('201', 'tipo_banco', 'Iglesia'),
--- ('201', 'ventilacion', 'aire acondicionado'),
-
--- ('202', 'tipo_pizarron', 'Marcador'),
--- ('202', 'tipo_banco', 'individual'),
--- ('202', 'ventilacion', 'Ventanas');
 
 
 
@@ -96,3 +74,30 @@ VALUES
 ('203', '60.19', 'Miércoles', '17:00', '19:00'),
 ('200', '60.20', 'Lunes', '17:00', '19:00'),
 ('203', '60.20', 'Martes', '17:00', '19:00');
+
+
+CREATE TABLE IF NOT EXISTS atributos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codigo_aula VARCHAR(50) NOT NULL,
+    nombre_atributo VARCHAR(50) NOT NULL,
+    valor TEXT NOT NULL,
+    FOREIGN KEY (codigo_aula) REFERENCES aulas(codigo)
+);
+
+
+-- Atributos
+INSERT INTO atributos (codigo_aula, nombre_atributo, valor) VALUES
+('200', 'Tipo Pizarron', 'Tiza'),
+('200', 'Tipo banco', 'individual'),
+('200', 'Ventilacion', 'ventilador'),
+('200', 'Cantidad enchufes', '2'),
+
+('201', 'Tipo Pizarron', 'Tiza'),
+('201', 'Tipo banco', 'Iglesia'),
+('201', 'Ventilacion', 'aire acondicionado'),
+('201', 'Cantidad enchufes', '1'),
+
+('202', 'Tipo Pizarron', 'Marcador'),
+('202', 'Tipo banco', 'Individual'),
+('202', 'Ventilacion', 'Ventanas'),
+('202', 'Cantidad enchufes', '0');

@@ -1,3 +1,4 @@
+
 /// <reference path="./api.js" />
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -32,32 +33,85 @@ document.addEventListener('DOMContentLoaded', function () {
 
   btnBuscar.addEventListener('click', () => {
     const aulaSeleccionada = selectAula.value;
-    const info = datosAulas[aulaSeleccionada];
-
-    if (info) {
-      resultado.innerHTML = `
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Aula ${info.codigo}</h5>
-            <p class="card-text"><strong>Capacidad:</strong> ${info.capacidad}</p>
-            <p class="card-text"><strong>Tipo de bancos:</strong> ${info.tipo_banco}</p>
-            <p class="card-text"><strong>Tipo de pizzarrón:</strong> ${info.tipo_pizarron}</p>
-            <p class="card-text"><strong>Cantidad de enchufes:</strong> ${info.enchufes}</p>
-            <p class="card-text"><strong>Pantalla para proyectar:</strong> ${info.pantalla_proyector}</p>
+    let html = '';
+  
+    fetch(getFullEndpoint(`/api/v1/aulas/${aulaSeleccionada}/atributos`))
+      .then(response => {
+        if (!response.ok) throw new Error('Error al cargar la información del aula');
+        return response.json();
+      })
+      .then(atributosArray => {
+        if (!atributosArray.length) {
+          html += `
+            <div class="card mb-3">
+              <div class="card-body">
+                <p class="card-text">No se encontraron atributos para el aula ${aulaSeleccionada}.</p>
+              </div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Aula ${aulaSeleccionada}</h5>
+                ${atributosArray.map(attr => `
+                  <p class="card-text"><strong>${attr.nombre_atributo}:</strong> ${attr.valor}</p>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+  
+        // Luego de atributos, buscar materias
+        return fetch(getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`));
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Error al cargar las materias del aula');
+        return response.json();
+      })
+      .then(materias => {
+        if (materias.length) {
+          html += `
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Materias dictadas</h5>
+                <ul class="list-group list-group-flush">
+                  ${materias.map(m => `
+                    <li class="list-group-item">
+                      <strong>Materia:</strong> ${m.nombre_materia}<br>
+                      <strong>Codigo:</strong> ${m.codigo_materia}<br>
+                      <strong>Día:</strong> ${m.dia_semana}<br>
+                      <strong>Horario:</strong> ${m.hora_inicio} - ${m.hora_fin}
+                    </li>
+                  `).join('')}
+                </ul>
+              </div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="card">
+              <div class="card-body">
+                <p class="card-text">No se encontraron materias para el aula ${aulaSeleccionada}.</p>
+              </div>
+            </div>
+          `;
+        }
+  
+        resultado.innerHTML = html;
+        resultado.classList.remove('d-none');
+      })
+      .catch(error => {
+        console.error('Error al buscar información:', error);
+        resultado.innerHTML = `
+          <div class="card">
+            <div class="card-body">
+              <p class="text-danger">Error al cargar los datos del aula.</p>
+            </div>
           </div>
-        </div>
-      `;
-      resultado.classList.remove('d-none');
-    } else {
-      resultado.innerHTML = `
-        <div class="card">
-          <div class="card-body">
-            <p class="card-text">No se encontró información para esa aula.</p>
-          </div>
-        </div>
-      `;
-      resultado.classList.remove('d-none');
-    }
+        `;
+        resultado.classList.remove('d-none');
+      });
   });
-
 });
+

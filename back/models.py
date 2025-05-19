@@ -1,6 +1,6 @@
 # src/models.py
 from flask_sqlalchemy import SQLAlchemy
-
+import logging
 DATABASE = SQLAlchemy()
 
 class Aula(DATABASE.Model):
@@ -13,7 +13,6 @@ class Aula(DATABASE.Model):
     posicion_x = DATABASE.Column(DATABASE.Float, nullable=True)
     posicion_y = DATABASE.Column(DATABASE.Float, nullable=True)
 
-    #atributos = DATABASE.relationship('Atributo', back_populates='aula', lazy=True, cascade="all, delete-orphan")
 
 
     def to_dict(self):
@@ -53,6 +52,32 @@ class Materia(DATABASE.Model):
             "codigo": self.codigo,
             "nombre": self.nombre
         }
+
+def materias_por_aula_get(codigo_aula: str) -> list[Materia]:
+
+    """Devuelve todas las materias que se dictan en un aula, con sus horarios"""
+
+    resultados = (
+        DATABASE.session.query(AulaMateria, Materia)
+        .join(Materia, AulaMateria.codigo_materia == Materia.codigo)
+        .filter(AulaMateria.codigo_aula == codigo_aula)
+        .all()
+    )
+
+    return [
+        {
+            "codigo_materia": aula_materia.codigo_materia,
+            "nombre_materia": materia.nombre,
+            "dia_semana": aula_materia.dia_semana,
+            "hora_inicio": aula_materia.hora_inicio.strftime('%H:%M'),
+            "hora_fin": aula_materia.hora_fin.strftime('%H:%M')
+        }
+        for aula_materia, materia in resultados
+    ]
+
+    
+    #return DATABASE.session.query(AulaMateria).filter_by(codigo_aula=codigo_aula).all()
+
 
 def materia_get_all() -> list[Materia]:
     """Devuelve todas las materias."""
@@ -105,8 +130,12 @@ class Atributos(DATABASE.Model):
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'codigo_aula': self.codigo_aula,
-            'nombre_atributo': self.nombre_atributo,
-            'valor': self.valor
+            "id": self.id,
+            "codigo_aula": self.codigo_aula,
+            "nombre_atributo": self.nombre_atributo,
+            "valor": self.valor
         }
+    
+def get_atributos(codigo_aula: str) -> list[Atributos]:
+    """Devuelve todos los atributos de un aula."""
+    return DATABASE.session.query(Atributos).filter_by(codigo_aula=codigo_aula).all()

@@ -37,6 +37,29 @@ class AulaGetPorCodigoResource(Resource):
         
         return jsonify(aula.to_dict()), 200
     
+@ns_aulas.route("/<string:codigo_aula>/atributos")
+class AulaAtributosGetPorCodigo(Resource):
+    def get(self, codigo_aula: str):
+        """
+        Devuelve los atributos del aula con el número especificado.
+        """
+        
+        aula = aula_get_by_codigo(codigo_aula)
+
+        if aula is None:
+            return {"error": "Aula no encontrada"}, 404
+        
+        print(f"\n Codigo aula: {codigo_aula}\n")
+
+
+        atributos = get_atributos(codigo_aula)
+
+        print(f"\n Atributos: {atributos}\n")
+
+        if atributos is None:
+            return {"error": "Atributos no encontrados"}, 404
+        
+        return jsonify([a.to_dict() for a in atributos])
 
 @ns_materias.route("/")
 class MateriasGetTodas(Resource):
@@ -69,7 +92,17 @@ class MateriaHorariosGetPorCodigo(Resource):
             for aula_materia, aula, materia in aulas_materia
         ]
 
-        
+
+
+@ns_materias.route("/<string:codigo_aula>/materias")
+class MateriaPorAula(Resource):
+    def get(self, codigo_aula: str):
+        """
+        Devuelve todas las materias que se dictan en el aula
+        """
+
+        return materias_por_aula_get(codigo_aula)
+
     
 
 def register_routes(app):
