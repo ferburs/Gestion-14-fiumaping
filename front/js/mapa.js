@@ -8,6 +8,29 @@ var image = L.imageOverlay('images/mapa_sin_linea.png', bounds).addTo(map);
 map.fitBounds(bounds);
 
 
+// Cargar los nodos desde coordenadas.json
+fetch('json/coordenadas.json')
+  .then(response => response.json())
+  .then(data => {
+    for (let key in data) {
+      const lugar = data[key];
+      const coord = lugar.coord;
+      const tipo = lugar.tipo;
+
+       if (tipo === "PASILLO") {
+        continue;
+      }
+
+      // Agregar marcador como punto (circleMarker)
+      const marker = L.marker([coord[0], coord[1]]).addTo(map);
+      marker.bindPopup(`<br>${tipo}`);
+
+      
+    }
+  });
+
+
+/*
 //------------- para que en la consola me aparezcan las coordenadas al hacer click, esto despues hay que borrarlo-------------------------
 // --- MODO EDICIÓN: Agregar nodos con clic ---
 let contadorNodo = 0;
@@ -38,3 +61,5 @@ map.on('click', function (e) {
 });
 
 //----------------------------------------------------------------------------------------------------------------------
+
+*/
