@@ -1,4 +1,3 @@
-
 /// <reference path="./api.js" />
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -7,6 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const resultado = document.getElementById('resultadoAula');
 
   let datosAulas = {};
+  const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  const HORAS = Array.from({ length: 15 }, (_, i) => `${String(i + 8).padStart(2, '0')}:00`);
 
   fetch(getFullEndpoint('/api/v1/aulas/'))
     .then(response => {
@@ -30,39 +31,27 @@ document.addEventListener('DOMContentLoaded', function () {
       resultado.classList.remove('d-none');
     });
 
-
   btnBuscar.addEventListener('click', () => {
     const aulaSeleccionada = selectAula.value;
     let html = '';
-  
+
     fetch(getFullEndpoint(`/api/v1/aulas/${aulaSeleccionada}/atributos`))
       .then(response => {
         if (!response.ok) throw new Error('Error al cargar la información del aula');
         return response.json();
       })
       .then(atributosArray => {
-        if (!atributosArray.length) {
-          html += `
-            <div class="card mb-3">
-              <div class="card-body">
-                <p class="card-text">No se encontraron atributos para el aula ${aulaSeleccionada}.</p>
-              </div>
+        html += `
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Aula ${aulaSeleccionada}</h5>
+              ${atributosArray.map(attr => `
+                <p class="card-text"><strong>${attr.nombre_atributo}:</strong> ${attr.valor}</p>
+              `).join('')}
             </div>
-          `;
-        } else {
-          html += `
-            <div class="card mb-3">
-              <div class="card-body">
-                <h5 class="card-title">Aula ${aulaSeleccionada}</h5>
-                ${atributosArray.map(attr => `
-                  <p class="card-text"><strong>${attr.nombre_atributo}:</strong> ${attr.valor}</p>
-                `).join('')}
-              </div>
-            </div>
-          `;
-        }
-  
-        // Luego de atributos, buscar materias
+          </div>
+        `;
+
         return fetch(getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`));
       })
       .then(response => {
@@ -70,36 +59,53 @@ document.addEventListener('DOMContentLoaded', function () {
         return response.json();
       })
       .then(materias => {
-        if (materias.length) {
-          html += `
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Materias dictadas</h5>
-                <ul class="list-group list-group-flush">
-                  ${materias.map(m => `
-                    <li class="list-group-item">
-                      <strong>Materia:</strong> ${m.nombre_materia}<br>
-                      <strong>Codigo:</strong> ${m.codigo_materia}<br>
-                      <strong>Día:</strong> ${m.dia_semana}<br>
-                      <strong>Horario:</strong> ${m.hora_inicio} - ${m.hora_fin}
-                    </li>
-                  `).join('')}
-                </ul>
+        html += `
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Calendario de uso del aula</h5>
+              <div class="table-responsive">
+                <table class="table table-bordered text-center">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Hora</th>
+                      ${DIAS.map(dia => `<th>${dia}</th>`).join('')}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${HORAS.map(hora => `
+                      <tr>
+                        <th scope="row">${hora}</th>
+                        ${DIAS.map(() => `<td></td>`).join('')}
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
               </div>
             </div>
-          `;
-        } else {
-          html += `
-            <div class="card">
-              <div class="card-body">
-                <p class="card-text">No se encontraron materias para el aula ${aulaSeleccionada}.</p>
-              </div>
-            </div>
-          `;
-        }
-  
+          </div>
+        `;
+
         resultado.innerHTML = html;
         resultado.classList.remove('d-none');
+
+        // Llenar las celdas en rojo
+        const tabla = resultado.querySelector('table');
+        materias.forEach(materia => {
+          const diaIndex = DIAS.findIndex(d => d.toLowerCase() === materia.dia_semana.toLowerCase());
+          const horaInicio = parseInt(materia.hora_inicio.split(':')[0], 10);
+          const horaFin = parseInt(materia.hora_fin.split(':')[0], 10);
+
+          for (let h = horaInicio; h < horaFin; h++) {
+            const rowIndex = h - 8; // Ajuste desde las 08:00
+            if (rowIndex >= 0 && rowIndex < HORAS.length) {
+              const fila = tabla.rows[rowIndex + 1]; // +1 porque la fila 0 es el encabezado
+              const celda = fila.cells[diaIndex + 1]; // +1 porque la columna 0 es la hora
+              celda.style.backgroundColor = '#2196F3';
+              celda.style.color = 'white';
+              celda.textContent = materia.nombre_materia;
+            }
+          }
+        });
       })
       .catch(error => {
         console.error('Error al buscar información:', error);
@@ -114,4 +120,3 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 });
-
