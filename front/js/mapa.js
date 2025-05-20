@@ -5,6 +5,7 @@ var map = L.map('map', {
 var bounds = [[0, 0], [720, 1152]];
 var image = L.imageOverlay('images/mapa_sin_linea.png', bounds).addTo(map);
 var markers = [];
+var edgeStack = [];
 var startMarker = null;
 var oldMarker = null;
 
@@ -28,10 +29,8 @@ function addMarker(id, coord) {
       clone.setAttribute("stroke", "red");
       svgLine.appendChild(clone);
       contadorNodo--;
+      edgeStack.push([oldMarker, startMarker]);
       return;
-    } else {
-      startMarker.vecinos.push(id);
-      marker.vecinos.push(startMarker.id);
     }
     marker.tipo = prompt("tipo de nodo:");
     if (marker.tipo === null) {
@@ -39,6 +38,9 @@ function addMarker(id, coord) {
     } else if (marker.tipo.length === 0) {
       marker.tipo = "PASILLO";
     }
+    startMarker.vecinos.push(id);
+    marker.vecinos.push(startMarker.id);
+    edgeStack.push([marker, startMarker]);
     var clone = document.getElementById("line1").cloneNode(true);
     clone.removeAttribute("id");
     clone.setAttribute("stroke", "red");
