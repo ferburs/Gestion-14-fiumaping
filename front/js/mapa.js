@@ -18,18 +18,33 @@ function updateLine() {
   oldMarker = null;
 }
 
+function addLine(markerA, markerB) {
+  const lineId = `${markerA.id},${markerB.id}`;
+  if (document.getElementById(lineId)) {
+    return false;
+  }
+  if (document.getElementById(`${markerB.id},${markerA.id}`)) {
+    return false;
+  }
+
+  edgeStack.push([markerA, markerB, undefined]);
+  markerA.vecinos.push(markerB.id);
+  markerB.vecinos.push(markerA.id);
+
+  var clone = document.getElementById("line1").cloneNode(true);
+  clone.setAttribute("id", lineId);
+  clone.setAttribute("stroke", "red");
+  svgLine.appendChild(clone);
+
+  return true;
+}
+
 function addMarker(id, coord) {
   const marker = { id: id, coord: coord, vecinos: [] };
   if (startMarker) {
     if (oldMarker) {
-      oldMarker.vecinos.push(startMarker.id);
-      startMarker.vecinos.push(oldMarker.id);
-      var clone = document.getElementById("line1").cloneNode(true);
-      clone.removeAttribute("id");
-      clone.setAttribute("stroke", "red");
-      svgLine.appendChild(clone);
+      addLine(oldMarker, startMarker);
       contadorNodo--;
-      edgeStack.push([oldMarker, startMarker]);
       return;
     }
     marker.tipo = prompt("tipo de nodo:");
@@ -38,33 +53,32 @@ function addMarker(id, coord) {
     } else if (marker.tipo.length === 0) {
       marker.tipo = "PASILLO";
     }
-    startMarker.vecinos.push(id);
-    marker.vecinos.push(startMarker.id);
-    edgeStack.push([marker, startMarker]);
-    var clone = document.getElementById("line1").cloneNode(true);
-    clone.removeAttribute("id");
-    clone.setAttribute("stroke", "red");
-    svgLine.appendChild(clone);
+    if (!addLine(marker, startMarker)) {
+      contadorNodo--;
+      return;
+    }
   } else {
     marker.tipo = "ENTRADA";
   }
   markers.push(marker);
-  L.circleMarker(coord, {
+  var leafletMarker = L.circleMarker(coord, {
     radius: 5,
     color: 'green',
     fillOpacity: 0.8
   }).addTo(map).bindPopup(id).on('click', (e) => {
-    var old = startMarker;
-    startMarker = marker;
     [y2, x2] = [y1, x1];
     [y1, x1] = coord;
     updateLine();
-    oldMarker = old;
+    oldMarker = startMarker;
+    startMarker = marker;
   });
-  startMarker = marker;
   x1 = x2;
   y1 = y2;
   updateLine();
+  startMarker = marker;
+  if (edgeStack.length > 0) {
+    edgeStack[edgeStack.length-1][2] = leafletMarker;
+  }
 }
 
 map.fitBounds(bounds);
@@ -130,6 +144,24 @@ addEventListener("keydown", (e) => {
     addMarker(generarIdNodo(contadorNodo++), [y2, x2]);
   } else if (e.key === "p") {
     console.log(JSON.stringify(markers));
+  } else if (e.key === "u") {
+    if (edgeStack.length > 0) {
+      var [markerA, markerB, leafletMarker] = edgeStack.pop();
+      markerA.vecinos.pop();
+      markerB.vecinos.pop();
+      svgLine.removeChild(document.getElementById(`${markerA.id},${markerB.id}`));
+      [y2, x2] = markerA.coord;
+      [y1, x1] = markerB.coord;
+      updateLine();
+      startMarker = markerB;
+      if (leafletMarker) {
+        map.removeLayer(leafletMarker);
+        contadorNodo--;
+        markers.pop();
+      } else {
+        oldMarker = markerA;
+      }
+    }
   }
 })
 
