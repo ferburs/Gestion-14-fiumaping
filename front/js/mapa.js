@@ -65,7 +65,7 @@ function addMarker(id, coord) {
     radius: 5,
     color: 'green',
     fillOpacity: 0.8
-  }).addTo(map).bindPopup(id).on('click', (e) => {
+  }).addTo(map).bindPopup(marker.tipo).on('click', (e) => {
     [y2, x2] = [y1, x1];
     [y1, x1] = coord;
     updateLine();
