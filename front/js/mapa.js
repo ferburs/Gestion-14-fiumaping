@@ -15,15 +15,15 @@ fetch('json/coordenadas.json')
   .then(data => {
     for (let key in data) {
       const lugar = data[key];
-      const coord = lugar.coord;
-      const tipo = lugar.tipo;
-
-       if (tipo === "PASILLO") {
+      if (!lugar.hasOwnProperty("tipo")) {
         continue;
       }
 
+      const coord = lugar.coord;
+      const tipo = lugar.tipo;
+
       // Agregar marcador como punto (circleMarker)
-      const marker = L.marker([coord[0], coord[1]]).addTo(map);
+      const marker = L.marker(coord).addTo(map);
       marker.bindPopup(`<br>${tipo}`);
 
       
