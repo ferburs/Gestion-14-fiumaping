@@ -2,7 +2,7 @@ var map = L.map('map', {
     crs: L.CRS.Simple,
 });
 
-var bounds = [[0, 0], [191, 284]];
+var bounds = [[0, 0], [720, 1152]];
 var image = L.imageOverlay('images/mapa_sin_linea.png', bounds).addTo(map);
 
 map.fitBounds(bounds);
