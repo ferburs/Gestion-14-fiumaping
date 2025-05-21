@@ -1,8 +1,8 @@
 {
- "A": { "coord": [126, 576], "vecinos": ["B"], "tipo": "ENTRADA" },
+ "A": { "coord": [126, 576], "vecinos": ["B"], "tipo": "Entrada" },
  "B": { "coord": [247, 576], "vecinos": ["A", "C", "X", "AE"], "tipo": "PASILLO" },
  "C": { "coord": [247, 480], "vecinos": ["B", "D"], "tipo": "PASILLO" },
- "D": { "coord": [261, 480], "vecinos": ["C", "E"], "tipo": "INTENDENCIA" },
+ "D": { "coord": [261, 480], "vecinos": ["C", "E"], "tipo": "Intendencia" },
  "E": { "coord": [226, 480], "vecinos": ["D", "F"], "tipo": "PASILLO" },
  "F": { "coord": [226, 416], "vecinos": ["E", "G", "H"], "tipo": "PASILLO" },
  "G": { "coord": [181, 416], "vecinos": ["F"], "tipo": "Oficina del Secretario" },
