@@ -1,13 +1,37 @@
 var map = L.map('map', {
-    crs: L.CRS.Simple,
+  crs: L.CRS.Simple,
+  minZoom: -1,
 });
 
-var bounds = [[0, 0], [191, 284]];
+var bounds = [[0, 0], [720, 1152]];
 var image = L.imageOverlay('images/mapa_sin_linea.png', bounds).addTo(map);
 
 map.fitBounds(bounds);
 
 
+// Cargar los nodos desde coordenadas.json
+fetch('json/coordenadas.json')
+  .then(response => response.json())
+  .then(data => {
+    for (let key in data) {
+      const lugar = data[key];
+      if (!lugar.hasOwnProperty("tipo")) {
+        continue;
+      }
+
+      const coord = lugar.coord;
+      const tipo = lugar.tipo;
+
+      // Agregar marcador como punto (circleMarker)
+      const marker = L.marker(coord).addTo(map);
+      marker.bindPopup(`<br>${tipo}`);
+
+      
+    }
+  });
+
+
+/*
 //------------- para que en la consola me aparezcan las coordenadas al hacer click, esto despues hay que borrarlo-------------------------
 // --- MODO EDICIÓN: Agregar nodos con clic ---
 let contadorNodo = 0;
@@ -38,3 +62,5 @@ map.on('click', function (e) {
 });
 
 //----------------------------------------------------------------------------------------------------------------------
+
+*/
