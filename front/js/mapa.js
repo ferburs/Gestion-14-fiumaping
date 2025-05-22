@@ -47,18 +47,18 @@ function addMarker(id, coord) {
       contadorNodo--;
       return;
     }
-    marker.tipo = prompt("tipo de nodo:");
-    if (marker.tipo === null) {
+    const tipo = prompt("tipo de nodo:");
+    if (tipo === null) {
       return;
-    } else if (marker.tipo.length === 0) {
-      marker.tipo = "PASILLO";
+    } else if (tipo.length > 0) {
+      marker.tipo = tipo;
     }
     if (!addLine(marker, startMarker)) {
       contadorNodo--;
       return;
     }
   } else {
-    marker.tipo = "ENTRADA";
+    marker.tipo = "Entrada";
   }
   markers.push(marker);
   var leafletMarker = L.circleMarker(coord, {
