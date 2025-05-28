@@ -4,82 +4,10 @@ var map = L.map('map', {
 
 var bounds = [[0, 0], [720, 1152]];
 var image = L.imageOverlay('images/mapa_sin_linea.png', bounds).addTo(map);
-var markers = [];
-var edgeStack = [];
-var startMarker = null;
-var oldMarker = null;
-
-function updateLine() {
-  var line = document.getElementById("line1");
-  line.setAttribute("x1", `${x1}`)
-  line.setAttribute("y1", `${720-y1}`)
-  line.setAttribute("x2", `${x2}`)
-  line.setAttribute("y2", `${720-y2}`)
-  oldMarker = null;
-}
-
-function addLine(markerA, markerB) {
-  const lineId = `${markerA.id},${markerB.id}`;
-  if (document.getElementById(lineId)) {
-    return false;
-  }
-  if (document.getElementById(`${markerB.id},${markerA.id}`)) {
-    return false;
-  }
-
-  edgeStack.push([markerA, markerB, undefined]);
-  markerA.vecinos.push(markerB.id);
-  markerB.vecinos.push(markerA.id);
-
-  var clone = document.getElementById("line1").cloneNode(true);
-  clone.setAttribute("id", lineId);
-  clone.setAttribute("stroke", "red");
-  svgLine.appendChild(clone);
-
-  return true;
-}
-
-function addMarker(id, coord) {
-  const marker = { id: id, coord: coord, vecinos: [] };
-  if (startMarker) {
-    if (oldMarker) {
-      addLine(oldMarker, startMarker);
-      contadorNodo--;
-      return;
-    }
-    const tipo = prompt("tipo de nodo:");
-    if (tipo === null) {
-      return;
-    } else if (tipo.length > 0) {
-      marker.tipo = tipo;
-    }
-    if (!addLine(marker, startMarker)) {
-      contadorNodo--;
-      return;
-    }
-  } else {
-    marker.tipo = "Entrada";
-  }
-  markers.push(marker);
-  var leafletMarker = L.circleMarker(coord, {
-    radius: 5,
-    color: 'green',
-    fillOpacity: 0.8
-  }).addTo(map).bindPopup(marker.tipo).on('click', (e) => {
-    [y2, x2] = [y1, x1];
-    [y1, x1] = coord;
-    updateLine();
-    oldMarker = startMarker;
-    startMarker = marker;
-  });
-  x1 = x2;
-  y1 = y2;
-  updateLine();
-  startMarker = marker;
-  if (edgeStack.length > 0) {
-    edgeStack[edgeStack.length-1][2] = leafletMarker;
-  }
-}
+var [oldMarker, selectedMarker] = [null, null];
+var geoaulas = { "type": "FeatureCollection", "features": [] };
+var coordinates = [];
+var lines = [];
 
 map.fitBounds(bounds);
 
@@ -98,70 +26,97 @@ function generarIdNodo(n) {
 }
 
 var [y1, x1, y2, x2] = [126, 576, 126, 576];
-
-{
-  var svgLine = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svgLine.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-  svgLine.setAttribute('viewBox', '0 0 1152 720');
-  svgLine.innerHTML = `<line id="line1" x1="576" y1="126" x2="576" y2="126" stroke="blue" />`;
-
-  L.svgOverlay(svgLine, bounds, {}).addTo(map);
+function updateLine() {
+  var line = document.getElementById("line1");
+  line.setAttribute("x1", `${x1}`)
+  line.setAttribute("y1", `${bounds[1][0]-y1}`)
+  line.setAttribute("x2", `${x2}`)
+  line.setAttribute("y2", `${bounds[1][0]-y2}`)
 }
-addMarker(generarIdNodo(contadorNodo++), [126, 576]);
+
+var svgLine = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+svgLine.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+svgLine.setAttribute('viewBox', `${bounds[0][1]} ${bounds[0][0]} ${bounds[1][1]} ${bounds[1][0]}`);
+svgLine.innerHTML = `<line id="line1" x1="0" y1="0" x2="0" y2="0" stroke="blue" />`;
+
+L.svgOverlay(svgLine, bounds, {}).addTo(map);
+
+function addLine(markerA, markerB) {
+  var clone = document.getElementById("line1").cloneNode(true);
+  clone.removeAttribute("id");
+  clone.setAttribute("stroke", "red");
+  svgLine.appendChild(clone);
+
+  const i = coordinates.length;
+  coordinates.push([y2, x2]);
+  lines.push(clone);
+
+  markerA.on('move', (e) => {
+    clone.setAttribute('x1', `${e.latlng.lng}`)
+    clone.setAttribute('y1', `${bounds[1][0] - e.latlng.lat}`)
+  });
+
+  markerB.on('move', (e) => {
+    coordinates[i] = [e.latlng.lat, e.latlng.lng];
+    clone.setAttribute('x2', `${e.latlng.lng}`)
+    clone.setAttribute('y2', `${bounds[1][0] - e.latlng.lat}`)
+  });
+}
+
+function clearLines() {
+  for (const line of lines) {
+    svgLine.removeChild(line);
+  }
+
+  coordinates = [];
+  lines = [];
+}
+
+function updateMarker(coord, marker) {
+  [y1, x1] = [y2, x2];
+  [y2, x2] = coord;
+  oldMarker = selectedMarker;
+  selectedMarker = marker;
+  updateLine();
+}
 
 map.on('click', function (e) {
-  const coord = [Math.round(e.latlng.lat), Math.round(e.latlng.lng)];
+  const coord = [e.latlng.lat, e.latlng.lng];
 
-  if (Math.abs(coord[0] - y1) < Math.abs(coord[1] - x1)) {
-    coord[0] = y1;
-  } else {
-    coord[1] = x1;
-  }
-  [y2, x2] = coord;
+  var leafletMarker = L.marker(coord, {
+    draggable: true,
+    autoPan: true,
+  }).addTo(map).on('click', (e) => {
+    updateMarker([e.latlng.lat, e.latlng.lng], leafletMarker);
+  });
 
-  updateLine();
+  updateMarker(coord, leafletMarker);
 });
 
 addEventListener("keydown", (e) => {
-  if (e.shiftKey) {
-    diff = 10;
-  } else {
-    diff = 1;
-  }
-  if (e.key === "w" || e.key === "W") {
-    y2 += diff;
-    updateLine();
-  } else if (e.key === "a" || e.key === "A") {
-    x2 -= diff;
-    updateLine();
-  } else if (e.key === "s" || e.key === "S") {
-    y2 -= diff;
-    updateLine();
-  } else if (e.key === "d" || e.key === "D") {
-    x2 += diff;
-    updateLine();
-  } else if (e.key === "k") {
-    addMarker(generarIdNodo(contadorNodo++), [y2, x2]);
-  } else if (e.key === "p") {
-    console.log(JSON.stringify(markers));
-  } else if (e.key === "u") {
-    if (edgeStack.length > 0) {
-      var [markerA, markerB, leafletMarker] = edgeStack.pop();
-      markerA.vecinos.pop();
-      markerB.vecinos.pop();
-      svgLine.removeChild(document.getElementById(`${markerA.id},${markerB.id}`));
-      [y2, x2] = markerA.coord;
-      [y1, x1] = markerB.coord;
-      updateLine();
-      startMarker = markerB;
-      if (leafletMarker) {
-        map.removeLayer(leafletMarker);
-        contadorNodo--;
-        markers.pop();
-      } else {
-        oldMarker = markerA;
-      }
+  if (e.key === "l") {
+    addLine(oldMarker, selectedMarker);
+  } else if (e.key === "c") {
+    if (coordinates.length < 3) {
+      return;
     }
+
+    const name = prompt("nombre de aula/salon?");
+    if (name === null) {
+      return;
+    }
+
+    var geo = L.polygon(coordinates, {
+      color: 'blue',
+      opacity: 0.2
+    }).addTo(map).toGeoJSON();
+    geo.properties.name = name;
+
+    geoaulas.features.push(geo);
+
+    clearLines();
+  } else if (e.key === "p") {
+    console.log(JSON.stringify(geoaulas));
   }
 })
 
