@@ -8,6 +8,7 @@ var [oldMarker, selectedMarker] = [null, null];
 var geoaulas = { "type": "FeatureCollection", "features": [] };
 var coordinates = [];
 var lines = [];
+var markers = [];
 
 map.fitBounds(bounds);
 
@@ -25,9 +26,9 @@ function generarIdNodo(n) {
   return id;
 }
 
-var [y1, x1, y2, x2] = [126, 576, 126, 576];
+var [y1, x1, y2, x2] = [NaN, NaN, NaN, NaN];
 function updateLine() {
-  var line = document.getElementById("line1");
+  var line = svgLine.childNodes[0];
   line.setAttribute("x1", `${x1}`)
   line.setAttribute("y1", `${bounds[1][0]-y1}`)
   line.setAttribute("x2", `${x2}`)
@@ -42,14 +43,18 @@ svgLine.innerHTML = `<line id="line1" x1="0" y1="0" x2="0" y2="0" stroke="blue" 
 L.svgOverlay(svgLine, bounds, {}).addTo(map);
 
 function addLine(markerA, markerB) {
-  var clone = document.getElementById("line1").cloneNode(true);
+  var clone = svgLine.childNodes[0].cloneNode(true);
   clone.removeAttribute("id");
   clone.setAttribute("stroke", "red");
   svgLine.appendChild(clone);
 
   const i = coordinates.length;
-  coordinates.push([y2, x2]);
+  const coord = [y2, x2];
+  updateMarker(coord, markerB, true);
+
+  coordinates.push(coord);
   lines.push(clone);
+  markers.push(markerB);
 
   markerA.on('move', (e) => {
     clone.setAttribute('x1', `${e.latlng.lng}`)
@@ -68,14 +73,24 @@ function clearLines() {
     svgLine.removeChild(line);
   }
 
+  for (var marker of markers) {
+    marker.dragging.disable();
+  }
+
+  markers = [];
   coordinates = [];
   lines = [];
 }
 
-function updateMarker(coord, marker) {
-  [y1, x1] = [y2, x2];
+function updateMarker(coord, marker, updateOld) {
+  if (isNaN(x2)) {
+    [y2, x2] = coord;
+  }
+  if (updateOld || coordinates.length === 0) {
+    [y1, x1] = [y2, x2];
+    oldMarker = selectedMarker;
+  }
   [y2, x2] = coord;
-  oldMarker = selectedMarker;
   selectedMarker = marker;
   updateLine();
 }
@@ -87,10 +102,10 @@ map.on('click', function (e) {
     draggable: true,
     autoPan: true,
   }).addTo(map).on('click', (e) => {
-    updateMarker([e.latlng.lat, e.latlng.lng], leafletMarker);
+    updateMarker([e.latlng.lat, e.latlng.lng], leafletMarker, false);
   });
 
-  updateMarker(coord, leafletMarker);
+  updateMarker(coord, leafletMarker, false);
 });
 
 addEventListener("keydown", (e) => {
