@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@mappedin/mappedin-js": "^5.51.0"
+    "@mappedin/mappedin-js": "6.0.1-beta.43"
   },
   "devDependencies": {
     "vite": "^6.3.5"

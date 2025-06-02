@@ -35,6 +35,11 @@ async function init() {
   mapView.Labels.all();
   console.log(mapData.allVerticalMovements);
   console.log('mapData keys:', Object.keys(mapData));
+
+
+  const allEntities = mapView.Map.entities;
+  const allTypes = allEntities.map(e => e.type);
+  console.log('Tipos únicos:', [...new Set(allTypes)]);
   // Mostrar puertas interiores
   mapView.updateState(DOORS.Interior, {
     visible: true,
@@ -53,22 +58,6 @@ async function init() {
   // const verticalMovements = mapData.getByType('vertical_movement');
   // console.log(`Vertical movements encontrados: ${verticalMovements.length}`);
 
-  verticalMovements.forEach(vm => {
-    console.log({
-      name: vm.name,
-      type: vm.verticalMovementType,
-      id: vm.id,
-      hasGeometry: !!vm.polygon || !!vm.mesh || !!vm.geometry,
-    });
-
-    // Intentar hacer visible cada uno
-    mapView.updateState(vm, {
-      visible: true,
-      color: 'blue',
-      opacity: 0.8,
-    });
-  });
-
   // Hacer interactivos los espacios
   const spaces = mapData.getByType('space');
   spaces.forEach((space) => {
@@ -84,27 +73,25 @@ async function init() {
   let path = null;
 
 
-
-
   //Camino de un click a otro
 
-  // mapView.on('click', (event) => {
-  //   if (!event.spaces || event.spaces.length === 0) return;
+  mapView.on('click', (event) => {
+    if (!event.spaces || event.spaces.length === 0) return;
 
-  //   if (!startSpace) {
-  //     startSpace = event.spaces[0];
-  //   } else if (!path) {
-  //     const directions = mapView.getDirections(startSpace, event.spaces[0]);
-  //     if (!directions) return;
+    if (!startSpace) {
+      startSpace = event.spaces[0];
+    } else if (!path) {
+      const directions = mapView.getDirections(startSpace, event.spaces[0]);
+      if (!directions) return;
 
-  //     mapView.Paths.add(directions.coordinates, {
-  //       nearRadius: 0.5,
-  //       farRadius: 0.5,
-  //     });
+      mapView.Paths.add(directions.coordinates, {
+        nearRadius: 0.5,
+        farRadius: 0.5,
+      });
 
-  //     path = directions;
-  //   }
-  // });
+      path = directions;
+    }
+  });
 }
 
 init();
