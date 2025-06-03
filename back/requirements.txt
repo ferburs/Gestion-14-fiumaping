@@ -4,3 +4,5 @@ flask_sqlalchemy
 wfastcgi
 dotenv
 flask-restx
+Authlib
+PyJWT

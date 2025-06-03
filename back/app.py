@@ -3,6 +3,7 @@ from flask_cors import CORS
 from config import Config
 from logger import get_logger
 from routes import register_routes
+from authlib.integrations.flask_client import OAuth
 from models import DATABASE, Aula
 from sqlalchemy import text
 import signal
@@ -13,11 +14,29 @@ import sqlite3
 
 # --- Inicializacion de la api ---
 app = Flask(__name__)
-
+app.secret_key = Config.SECRET_KEY  # o cualquier string único y secreto
 Config.init()
 CORS(app, resources={r"/api/*": {"origins": Config.ALLOWED_ORIGINS}})
 app.config.from_object(Config)
 logger = get_logger()
+
+
+# Inicializamos OAuth
+oauth = OAuth()
+oauth.init_app(app)
+google = oauth.register(
+    name='google',
+    client_id=Config.GOOGLE_CLIENT_ID,
+    client_secret=Config.GOOGLE_CLIENT_SECRET,
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile',
+    }
+)
+
+# Guardamos google como atributo del módulo routes
+import routes
+routes.google = google
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
 DATABASE.init_app(app)
