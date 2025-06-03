@@ -6,3 +6,4 @@ dotenv
 flask-restx
 Authlib
 PyJWT
+requests
