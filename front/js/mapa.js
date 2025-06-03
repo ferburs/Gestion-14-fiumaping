@@ -1,4 +1,11 @@
 var bounds = [[0, 0], [720, 1152]];
+var maxBounds = function(bounds) {
+  var extraw = (bounds[1][1] - bounds[0][1]) / 3;
+  var extrah = (bounds[1][0] - bounds[0][0]) / 3;
+
+  return [[bounds[0][0] - extrah, bounds[0][1] - extraw],
+          [bounds[1][0] + extrah, bounds[1][1] + extraw]]
+}(bounds)
 
 var imageSs = L.imageOverlay('images/ss.png', bounds);
 var imageEp = L.imageOverlay('images/ep.png', bounds);
@@ -13,6 +20,7 @@ var map = L.map('map', {
   crs: L.CRS.Simple,
   minZoom: -1,
   layers: [image0],
+  maxBounds: maxBounds,
 });
 
 map.fitBounds(bounds);
