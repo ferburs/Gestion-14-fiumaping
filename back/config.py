@@ -12,6 +12,7 @@ class Config:
     JWT_SECRET = None
     SECRET_KEY = None
     FRONTEND_GOOGLE_LOGIN_URL = None
+    IS_PRODUCTION = False
 
     @staticmethod
     def init():
@@ -22,3 +23,4 @@ class Config:
         Config.JWT_SECRET = os.environ.get("JWT_SECRET", "")
         Config.SECRET_KEY = os.environ.get("SECRET_KEY", "")
         Config.FRONTEND_GOOGLE_LOGIN_URL = os.environ.get("FRONTEND_GOOGLE_LOGIN_URL", "")
+        Config.IS_PRODUCTION = (os.environ.get("IS_PRODUCTION", "True") == "True")
