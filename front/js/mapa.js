@@ -1,13 +1,34 @@
+var bounds = [[0, 0], [720, 1152]];
+
+var imageSs = L.imageOverlay('images/ss.png', bounds);
+var imageEp = L.imageOverlay('images/ep.png', bounds);
+var image0 = L.imageOverlay('images/0.png', bounds);
+var image1 = L.imageOverlay('images/1.png', bounds);
+var image2 = L.imageOverlay('images/2.png', bounds);
+var image3 = L.imageOverlay('images/3.png', bounds);
+var image4 = L.imageOverlay('images/4.png', bounds);
+var image5 = L.imageOverlay('images/5.png', bounds);
+
 var map = L.map('map', {
   crs: L.CRS.Simple,
   minZoom: -1,
+  layers: [image0],
 });
-
-var bounds = [[0, 0], [720, 1152]];
-var image = L.imageOverlay('images/mapa_sin_linea.png', bounds).addTo(map);
 
 map.fitBounds(bounds);
 
+const baseLayers = {
+  'Subsuelo': imageSs,
+  'Entrepiso': imageEp,
+  'Planta Baja': image0,
+  '1er Piso': image1,
+  '2do Piso': image2,
+  '3er Piso': image3,
+  '4to Piso': image4,
+  '5to Piso': image5,
+};
+
+const layerControl = L.control.layers(baseLayers).addTo(map);
 
 // Cargar los nodos desde coordenadas.json
 fetch('json/coordenadas.json')
