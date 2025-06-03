@@ -51,13 +51,17 @@ async function init() {
     opacity: 0.6,
   });
 
-  // Espacios interactivos
+  // Espacios interactivos: solo los que sean rooms
   const spaces = mapData.getByType('space');
+
   spaces.forEach((space) => {
-    mapView.updateState(space, {
-      interactive: true,
-      hoverColor: 'orange',
-    });
+    const isRoom = space?.type?.toLowerCase() === 'room';
+    if (isRoom) {
+      mapView.updateState(space, {
+        interactive: true,
+        hoverColor: 'orange',
+      });
+    }
   });
 
   // Manejo de clics y rutas
