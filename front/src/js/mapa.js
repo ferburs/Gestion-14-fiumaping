@@ -7,58 +7,51 @@ const options = {
   mapId: '683cfcf0ef06ad000bd9c615',
 };
 
-function calculateCentroid(polygon) {
-  const coords = polygon?.coordinates;
-  if (!coords || coords.length === 0) return null;
-
-  let x = 0, y = 0, z = 0;
-  coords.forEach(point => {
-    x += point.x;
-    y += point.y;
-    z += point.z;
-  });
-
-  return {
-    x: x / coords.length,
-    y: y / coords.length,
-    z: z / coords.length,
-  };
-}
 
 async function init() {
   const mapData = await getMapData(options);
-  const mapView = await show3dMap(
-    document.getElementById('mappedin-map'),
-    mapData
-  );
+
+  const mappedinDiv = document.getElementById("mappedin-map");
+  const floorSelector = document.getElementById("floorSelector");
+
+  mapData.getByType("floor").forEach((floor) => {
+    const option = document.createElement("option");
+    option.text = floor.name;
+    option.value = floor.id;
+    floorSelector.appendChild(option);
+  });
+
+  const mapView = await show3dMap(mappedinDiv, mapData);
+
+  floorSelector.value = mapView.currentFloor.id;
+
+  // Cambio de piso
+  floorSelector.addEventListener("change", (e) => {
+    mapView.setFloor(e.target.value);
+  });
+
+  mapView.on("floor-change", (event) => {
+    const id = event.floor.id;
+    if (!id) return;
+    floorSelector.value = id;
+  });
 
   mapView.Labels.all();
-  console.log(mapData.allVerticalMovements);
-  console.log('mapData keys:', Object.keys(mapData));
 
-
-  const allEntities = mapView.Map.entities;
-  const allTypes = allEntities.map(e => e.type);
-  console.log('Tipos únicos:', [...new Set(allTypes)]);
-  // Mostrar puertas interiores
+  // Mostrar puertas
   mapView.updateState(DOORS.Interior, {
     visible: true,
     color: '#5C4033',
     opacity: 0.6,
   });
 
-  // Mostrar puertas exteriores
   mapView.updateState(DOORS.Exterior, {
     visible: true,
     color: 'black',
     opacity: 0.6,
   });
 
-  // Obtener y mostrar todos los vertical movements (elevadores, escaleras, etc.)
-  // const verticalMovements = mapData.getByType('vertical_movement');
-  // console.log(`Vertical movements encontrados: ${verticalMovements.length}`);
-
-  // Hacer interactivos los espacios
+  // Espacios interactivos
   const spaces = mapData.getByType('space');
   spaces.forEach((space) => {
     mapView.updateState(space, {
@@ -67,29 +60,29 @@ async function init() {
     });
   });
 
-
-  // Manejo de clics para rutas
+  // Manejo de clics y rutas
   let startSpace = null;
-  let path = null;
-
-
-  //Camino de un click a otro
+  let currentPathId = null;
 
   mapView.on('click', (event) => {
     if (!event.spaces || event.spaces.length === 0) return;
 
     if (!startSpace) {
       startSpace = event.spaces[0];
-    } else if (!path) {
+    } else {
+      if (currentPathId) {
+        mapView.Paths.remove(currentPathId); // ✅ borra ruta anterior
+      }
+
       const directions = mapView.getDirections(startSpace, event.spaces[0]);
       if (!directions) return;
 
-      mapView.Paths.add(directions.coordinates, {
+      currentPathId = mapView.Paths.add(directions.coordinates, {
         nearRadius: 0.5,
         farRadius: 0.5,
       });
 
-      path = directions;
+      startSpace = null;
     }
   });
 }
