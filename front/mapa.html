@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,11 +21,11 @@
         rel="stylesheet"
     />
 
+    <!-- CSS de Mappedin -->
+    <link rel="stylesheet" href="/node_modules/@mappedin/mappedin-js/lib/index.css" />
   </head>
 
-
   <body>
-   
     <!-- Navbar -->
     <nav class="navbar  navbar-expand-lg navbar-dark  bg-primary">
         <div class="container-fluid">
@@ -66,17 +66,22 @@
                 </ul>
             </div>
         </div>
+      </div>
     </nav>
-    <!-- --------------------------------------------------------------------------------------------- -->
 
     
+    <div id="floor-controls" class="p-3 bg-light">
+      <label for="floorSelector" class="form-label">Elegí un piso:</label>
+      <select id="floorSelector" class="form-select" style="max-width: 200px;"></select>
+    </div>
+    
+    <!-- Contenedor del mapa -->
+    <div id="mappedin-map" style="height: 90vh; width: 100%;"></div>
 
+    <!-- Script principal importado como módulo -->
+    <script type="module" src="/src/js/mapa.js"></script>
 
-    <div id="map" style="height: 90vh; width: 100%;"></div>
-    <script src="js/mapa.js"></script>
-   
-    <!-- Bootstrap Bundle JS (incluye Popper) -->
+    <!-- Bootstrap Bundle (sin defer, ya que se carga al final del body) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
   </body>
 </html>
