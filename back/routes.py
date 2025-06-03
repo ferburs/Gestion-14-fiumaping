@@ -117,7 +117,7 @@ class GoogleLogin(Resource):
         """
         Redirige al login de Google
         """
-        redirect_uri = url_for('api.google_callback', _external=True)
+        redirect_uri = url_for('api.google_callback', _external=True, _scheme='https')
         return google.authorize_redirect(redirect_uri)
     
 @ns_auth.route('/user-info')
