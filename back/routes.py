@@ -122,6 +122,9 @@ class GoogleLogin(Resource):
         if Config.IS_PRODUCTION:
             redirect_uri = url_for('api.google_callback', _external=True, _scheme='https')
         else:
+            print("No es producción, usando http")
+            print("Whitelist de admins:")
+            print(Config.ADMIN_EMAIL_WHITELIST)
             redirect_uri = url_for('api.google_callback', _external=True)
         
         return google.authorize_redirect(redirect_uri)
@@ -139,7 +142,8 @@ class UserInfo(Resource):
             payload = jwt.decode(token, Config.JWT_SECRET, algorithms=["HS256"])
             return {
                 "email": payload.get("email"),
-                "name": payload.get("name")
+                "name": payload.get("name"),
+                "role": payload.get("role"),
             }, 200
         except jwt.ExpiredSignatureError:
             return {"error": "Token expirado"}, 401
@@ -153,9 +157,14 @@ def google_callback():
     resp = google.get(userinfo_endpoint)
     user_info = resp.json()
 
+    # Asignamos el rol según el email
+    email = user_info['email']
+    role = "ADMIN" if email in Config.ADMIN_EMAIL_WHITELIST else "USER"
+
     payload = {
         "email": user_info['email'],
         "name": user_info['name'],
+        "role": role,
         "exp": int(time.time()) + 3600
     }
 

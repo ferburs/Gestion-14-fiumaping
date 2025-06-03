@@ -13,6 +13,7 @@ class Config:
     SECRET_KEY = None
     FRONTEND_GOOGLE_LOGIN_URL = None
     IS_PRODUCTION = False
+    ADMIN_EMAIL_WHITELIST = []
 
     @staticmethod
     def init():
@@ -24,3 +25,4 @@ class Config:
         Config.SECRET_KEY = os.environ.get("SECRET_KEY", "")
         Config.FRONTEND_GOOGLE_LOGIN_URL = os.environ.get("FRONTEND_GOOGLE_LOGIN_URL", "")
         Config.IS_PRODUCTION = (os.environ.get("IS_PRODUCTION", "True") == "True")
+        Config.ADMIN_EMAIL_WHITELIST = [email.strip() for email in os.environ.get("ADMIN_EMAIL_WHITELIST", "").split(',')]
