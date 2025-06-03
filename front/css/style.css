@@ -1,4 +1,4 @@
-.fondo{
+.fondo {
     background-image: url('../images/fondo_portada.jpg');
     background-size: cover;
     background-position: center;
@@ -7,6 +7,21 @@
     /*opacity: 0.5;*/
 }
 
-#map {
-    height: 90vh;
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.box {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}
+
+.box nav {
+    flex: 0 1 auto;
+}
+
+.box #map {
+    flex: 1 1 auto;
 }
