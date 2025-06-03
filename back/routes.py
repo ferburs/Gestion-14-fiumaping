@@ -1,17 +1,26 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, url_for, redirect, request
 from logger import get_logger
 from config import Config
 from models import *
+from authlib.integrations.flask_client import OAuth
+import jwt
+import time
 
 from flask_restx import Api, Resource
 
+
 api_bp = Blueprint('api', __name__, url_prefix='/api/v1')
 
-api = Api(api_bp, title="API de Aulas", version="1.0", description="Swagger con Blueprint")
+api = Api(api_bp, title="API de Fiumapping", version="1.0", description="Swagger con Blueprint")
+ns_auth = api.namespace("auth", description="Operaciones relacionadas con la auth")
 ns_aulas = api.namespace("aulas", description="Operaciones relacionadas con aulas")
 ns_materias = api.namespace("materias", description="Operaciones relacionadas con las materias")
 
 logger = get_logger()
+
+# Configuración de OAuth
+oauth = OAuth()
+google = None  # lo inicializamos luego en app.py
 
 @ns_aulas.route("/")
 class AulaGetTodas(Resource):
@@ -92,8 +101,6 @@ class MateriaHorariosGetPorCodigo(Resource):
             for aula_materia, aula, materia in aulas_materia
         ]
 
-
-
 @ns_materias.route("/<string:codigo_aula>/materias")
 class MateriaPorAula(Resource):
     def get(self, codigo_aula: str):
@@ -104,6 +111,70 @@ class MateriaPorAula(Resource):
         return materias_por_aula_get(codigo_aula)
 
     
+@ns_auth.route('/google-login')
+class GoogleLogin(Resource):
+    def get(self):
+        """
+        Redirige al login de Google
+        """
+        redirect_uri = ""
+
+        if Config.IS_PRODUCTION:
+            redirect_uri = url_for('api.google_callback', _external=True, _scheme='https')
+        else:
+            print("No es producción, usando http")
+            print("Whitelist de admins:")
+            print(Config.ADMIN_EMAIL_WHITELIST)
+            redirect_uri = url_for('api.google_callback', _external=True)
+        
+        return google.authorize_redirect(redirect_uri)
+    
+@ns_auth.route('/user-info')
+class UserInfo(Resource):
+    def get(self):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return {"error": "Token no provisto"}, 401
+
+        token = auth_header.split(" ")[1]
+
+        try:
+            payload = jwt.decode(token, Config.JWT_SECRET, algorithms=["HS256"])
+            return {
+                "email": payload.get("email"),
+                "name": payload.get("name"),
+                "role": payload.get("role"),
+            }, 200
+        except jwt.ExpiredSignatureError:
+            return {"error": "Token expirado"}, 401
+        except jwt.InvalidTokenError:
+            return {"error": "Token inválido"}, 401
+
+@api_bp.route('/auth/callback')
+def google_callback():
+    token = google.authorize_access_token()
+    userinfo_endpoint = google.server_metadata['userinfo_endpoint']
+    resp = google.get(userinfo_endpoint)
+    user_info = resp.json()
+
+    # Asignamos el rol según el email
+    email = user_info['email']
+    role = "ADMIN" if email in Config.ADMIN_EMAIL_WHITELIST else "USER"
+
+    payload = {
+        "email": user_info['email'],
+        "name": user_info['name'],
+        "role": role,
+        "exp": int(time.time()) + 3600
+    }
+
+    jwt_token = jwt.encode(payload, Config.JWT_SECRET, algorithm="HS256")
+    if isinstance(jwt_token, bytes):
+        jwt_token = jwt_token.decode('utf-8')
+
+    redirect_url = f"{Config.FRONTEND_GOOGLE_LOGIN_URL}?token={jwt_token}"
+
+    return redirect(redirect_url)
 
 def register_routes(app):
     app.register_blueprint(api_bp)
