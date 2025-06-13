@@ -13,7 +13,7 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""></script>
 
-    <script src="js/navbar.js"></script>
+    <script src="src/js/navbar.js"></script>
 
     <!-- Bootstrap CSS -->  
     <link rel="stylesheet" href="css/style.css"><link
@@ -71,10 +71,44 @@
 
     
     <div id="floor-controls" class="p-3 bg-light">
-      <label for="floorSelector" class="form-label">Elegí un piso:</label>
-      <select id="floorSelector" class="form-select" style="max-width: 200px;"></select>
+      <div class="d-flex align-items-end flex-wrap gap-2">
+        <div>
+          <label for="floorSelector" class="form-label">Elegí un piso:</label>
+          <select id="floorSelector" class="form-select" style="max-width: 200px;"></select>
+        </div>
+
+
+        <!--boton para ir a un lugar-->
+
+            <!-- Buscador -->
+      <!-- <div class="container mt-5">
+      <h3>Buscar Materia</h3>
+      <div class="mb-3">
+
+      
+        <select id="selectMateria" class="selectpicker form-control" data-live-search="true">
+          <option disabled selected>Elegí una materia</option>
+        </select>
+          
+        </div>
+        <button id="btnBuscarMateria" class="btn btn-primary mb-4">Buscar</button>
+        Resultado -->
+        <!-- <div id="resultadoMateria" class="card d-none">
+        <div class="card-body">
+            <h5 class="card-title" id="materiaTitulo"></h5>
+            <p class="card-text" id="materiaCodigo"></p>
+            <p class="card-text" id="materiaAulas"></p>
+        </div> --> 
+    
+        <input list="roomList" id="roomInput" class="form-control" style="max-width: 200px;" placeholder="Ej: Aula 300">
+        <datalist id="roomList"></datalist>
+        <button id="goRoomBotton" class="btn btn-primary">Ir</button>
+        <span id="error-msg"></span>
+        <span id="error-msg" style="color: red; margin-left: 10px;"></span>
     </div>
     
+
+
     <!-- Contenedor del mapa -->
     <div id="mappedin-map" style="height: 90vh; width: 100%;"></div>
 
@@ -83,5 +117,8 @@
 
     <!-- Bootstrap Bundle (sin defer, ya que se carga al final del body) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
   </body>
 </html>
