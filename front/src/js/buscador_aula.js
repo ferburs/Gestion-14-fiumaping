@@ -1,4 +1,4 @@
-/// <reference path="./api.js" />
+import { getFullEndpoint } from './api.js';
 
 document.addEventListener('DOMContentLoaded', function () {
   const selectAula = document.getElementById('selectAula');
