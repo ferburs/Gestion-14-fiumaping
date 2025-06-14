@@ -95,8 +95,15 @@
             <p class="card-text" id="materiaCodigo"></p>
             <p class="card-text" id="materiaAulas"></p>
         </div> --> 
-    
-        <input list="roomList" id="roomInput" class="form-control" style="max-width: 200px;" placeholder="Ej: Aula 300">
+        <input list="roomList" id="origen" class="form-control" style="max-width: 200px;" placeholder="Origen">
+
+        <input list="roomList" id="destino" class="form-control" style="max-width: 200px;" placeholder="Destino">
+
+        <select id="rutaTipo" class="form-select" style="max-width: 200px;">
+          <option value="normal">Ruta normal</option>
+          <option value="accessible">Ruta accesible</option>
+        </select>
+  
         <datalist id="roomList"></datalist>
         <button id="goRoomBotton" class="btn btn-primary">Ir</button>
         <span id="error-msg"></span>

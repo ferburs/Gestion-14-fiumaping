@@ -5,7 +5,9 @@ export function setupSpaceInteractions(mapView, mapData) {
   //Agrego posibles destino por el piso en el que estoy
   //busqueda = document.getElementById('map-container')
 
-  const roomInput = document.getElementById("roomInput");
+  const origen = document.getElementById("origen");
+  const destino = document.getElementById("destino");
+  const rutaTipo = document.getElementById("rutaTipo");
   const roomList = document.getElementById("roomList");
   const goButton = document.getElementById("goRoomBotton");
 
@@ -21,6 +23,7 @@ export function setupSpaceInteractions(mapView, mapData) {
 
   mapData.getByType("connection").forEach((connection) => {
 
+
     const coords = connection.coordinates.find(
       (coord) => coord.floorId === mapView.currentFloor.id
     );
@@ -29,11 +32,13 @@ export function setupSpaceInteractions(mapView, mapData) {
       let labelText = "";
       
       // Detectar por nombre si es escalera o ascensor
-      const name = (connection.name || "").toLowerCase();
+      const name = (connection.type || "").toLowerCase();
   
       if (name.includes("stairs") || name.includes("escalera")) {
+        //console.log(connection);
         labelText = "🪜🪜";
       } else if (name.includes("elevator") || name.includes("ascensor")) {
+        //.log(connection);
         labelText = "🛗🛗";
       } else {
         // Otros tipos de conexiones opcionalmente
@@ -62,29 +67,43 @@ export function setupSpaceInteractions(mapView, mapData) {
   });
 
   goButton.addEventListener("click", () => {
-    const roomName = roomInput.value.trim();
-    if (!roomName) return;
+    const origenRoomName = origen.value.trim();
+    const destinoRoomName = destino.value.trim();
+    if (!destinoRoomName) return;
+    if (!origenRoomName) return; // cambiar si queremos para que, si no se ingresa origen, este harcodeado con ascensores
 
-    const space = spaces.find(s => s.name.toLowerCase() === roomName.toLowerCase());
-    if (!space) {
-      alert("No se encontró la habitación: " + roomName);
+    const destinoSpace = spaces.find(s => s.name.toLowerCase() === destinoRoomName.toLowerCase());
+    if (!destinoSpace) {
+      alert("No se encontró la habitación: " + destinoRoomName);
       return;
     }
 
-    //crear camino hasta la room seleccionada tomando como el punto inicial los ascensores.
-
-    const startSpace = mapData.getByType("connection").find(connection =>
-      connection.name.toLowerCase() === "ascensor"
-    );
-    if (!startSpace) {
-      alert("No se encontraron ascensores disponibles.");
-      return;
+    const origenSpace = spaces.find(s => s.name.toLowerCase() === origenRoomName.toLowerCase());
+    if (!origenSpace) {
+      alert("No se encontró la habitación: " + origenSpace);
+      return; // cambiar si queremos para que, si no se ingresa origen, este harcodeado con ascensores
     }
-    const directions = mapView.getDirections(startSpace, space);
+
+    let accessibleRoute = rutaTipo.value === "normal" ? false : true; // si es normal, no es accesible, si es accesible, no es normal
+
+    // Calcular ruta solo usando ascensores
+    const directions = mapView.getDirections(origenSpace, destinoSpace, { accessible: accessibleRoute });
+  
     if (!directions) {
-      alert("No se pudo calcular la ruta a la habitación: " + roomName);
+      alert("No se pudo calcular la ruta a la habitación: " + destinoRoomName + " desde la habitación: " + origenRoomName);
       return;
     }
+
+    console.log(directions)
+
+    // const directions = mapView.getDirections(origenSpace, destinoSpace, {exclude: ["stairs"]});
+    // if (!directions) {
+    //   alert("No se pudo calcular la ruta a la habitación: " + destinoRoomName + "desde la habitacion: " + origenRoomName);
+    //   return;
+    // }
+
+
+    // Debug: ver qué conexiones usa la ruta
 
     mapView.Navigation.draw(directions);
 
