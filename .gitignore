@@ -1,0 +1,40 @@
+# === GLOBAL ===
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+.env
+.env.*
+
+# === BACKEND (Flask) ===
+back/__pycache__/
+back/*.pyc
+back/*.pyo
+back/*.pyd
+back/instance/
+back/.pytest_cache/
+back/.mypy_cache/
+back/.venv/
+back/venv/
+back/env/
+back/.coverage
+back/coverage.xml
+back/htmlcov/
+
+# Pipenv / Poetry / venv
+back/Pipfile.lock
+back/poetry.lock
+back/.python-version
+
+# === FRONTEND (Vite) ===
+front/node_modules/
+front/dist/
+front/.vite/
+front/.eslintcache
+front/yarn.lock
+front/package-lock.json
+
+# === OS/Editor files ===
+.vscode/
+.idea/
