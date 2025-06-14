@@ -1,5 +1,8 @@
 export function setupFloorSelector(mapView, selector, mapData) {
-    mapData.getByType("floor").forEach(floor => {
+    const floors = mapData.getByType("floor")
+    .sort((a, b) => a.name.localeCompare(b.name, 'es', { numeric: true }));
+
+    floors.forEach(floor => {
       const option = document.createElement("option");
       option.value = floor.id;
       option.text = floor.name;
