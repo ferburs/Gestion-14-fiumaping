@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FiuMapping</title>
 
-    <script src="src/js/api.js"></script>
+    <script type="module" src="/src/js/api.js"></script>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 
     <!-- Bootstrap CSS -->
     <link
@@ -23,7 +23,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
         <a class="navbar-brand" href="index.html">
-          <img src="images/Logo-fiuba.png" alt="Bootstrap" width="70" height="70">
+          <img src="/images/Logo-fiuba.png" alt="Bootstrap" width="70" height="70">
         </a>
 
         <div class="navbar-text text-white ms-3">
@@ -53,48 +53,7 @@
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
   </script>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", async function () {
+  <script type="module" src="/src/js/index.js"></script>
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get("token");
-
-      if (token) {
-          try {
-              const response = await fetch(getFullEndpoint("api/v1/auth/user-info"), {
-                  method: "GET",
-                  headers: {
-                      "Authorization": `Bearer ${token}`
-                  }
-              });
-
-              if (!response.ok) {
-                  throw new Error("Token inválido");
-              }
-
-              const userData = await response.json();
-              console.log("Usuario autenticado:", userData);
-
-              // Podés guardar los datos o el token en localStorage si querés
-              localStorage.setItem("authToken", token);
-              localStorage.setItem("userName", userData.name);
-              localStorage.setItem("userEmail", userData.email);
-              localStorage.setItem("userRole", userData.role);
-
-              // Redireccionar
-              window.location.href = "mapa.html";
-
-          } catch (error) {
-              console.error("Error al autenticar:", error);
-              // Opcional: mostrar mensaje o redirigir al login
-          }
-      }
-
-        const loginUrl = getFullEndpoint('api/v1/auth/google-login');
-
-        const loginButton = document.getElementById("login-admin-btn");
-        loginButton.href = loginUrl;
-    });
-</script>
 </body>
 </html>
