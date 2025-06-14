@@ -18,6 +18,7 @@ back/.mypy_cache/
 back/.venv/
 back/venv/
 back/env/
+back/.env
 back/.coverage
 back/coverage.xml
 back/htmlcov/
