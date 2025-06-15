@@ -11,17 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
       userInfoDiv.textContent = "Usuario invitado";
     }
 
-    // TODO: cual es el rol?
-    if (userRole === "Administrador") {
-      const navbar = document.getElementById("navbarLinks");
-      let navbarListItem = navbar.children[0].cloneNode(true);
-
-      let aTag = navbarListItem.children[0];
-      aTag.href = "admin.html";
-      aTag.textContent = "Editar Datos de Aulas";
-      navbar.appendChild(navbarListItem);
-    }
-
     logoutLink.addEventListener("click", (e) => {
       e.preventDefault();
       localStorage.clear();
