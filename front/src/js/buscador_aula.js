@@ -1,9 +1,14 @@
 /// <reference path="./api.js" />
 
+function adminEditRow(e) {
+  console.log(e);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   const selectAula = document.getElementById('selectAula');
   const btnBuscar = document.getElementById('btnBuscar');
   const resultado = document.getElementById('resultadoAula');
+  const isAdmin = localStorage.getItem('userRole') == 'Administrador';
 
   let datosAulas = {};
   const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -45,11 +50,26 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="card mb-3">
             <div class="card-body">
               <h5 class="card-title">Aula ${aulaSeleccionada}</h5>
-              <ul class="list-group">
-              ${atributosArray.map(attr => `
-                <li class="list-group-item"><strong>${attr.nombre_atributo}:</strong> ${attr.valor}</li>
-              `).join('')}
-              </ul>
+              <hr />
+              <table id="atributosAula" class="table table-striped">
+                <tbody>
+                  ${atributosArray.map((attr, i) => `
+                  <tr>
+                    <th scope="row">${attr.nombre_atributo}</th>
+                    <td>${attr.valor}</td>
+                    ${isAdmin && `
+                    <td align="right"><div class="btn-group">
+                      <button class="btn btn-danger">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div></td>`}
+                  </tr>
+                  `).join('')}
+                  <tr><td><button id="agregarAtributo" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i>
+                  </button></td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         `;
@@ -66,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="card-body">
               <h5 class="card-title">Calendario de uso del aula</h5>
               <div class="table-responsive">
-                <table class="table table-bordered text-center">
+                <table id="calendario" class="table table-bordered text-center">
                   <thead class="table-light">
                     <tr>
                       <th>Hora</th>
@@ -90,8 +110,23 @@ document.addEventListener('DOMContentLoaded', function () {
         resultado.innerHTML = html;
         resultado.classList.remove('d-none');
 
+        resultado.querySelector('#agregarAtributo').addEventListener('click', e => {
+          $('#atributosAula tr:last').before(`<tr>
+            <th contenteditable="plaintext-only"></th>
+            <td contenteditable="plaintext-only"></td>
+            <td align="right"><div class="btn-group">
+              <button class="btn btn-primary">
+                <i class="bi bi-check-lg"></i>
+              </button>
+              <button class="btn btn-danger">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div></td>
+            </tr>`);
+        });
+
         // Llenar las celdas en rojo
-        const tabla = resultado.querySelector('table');
+        const tabla = resultado.querySelector('#calendario');
         materias.forEach(materia => {
           const diaIndex = DIAS.findIndex(d => d.toLowerCase() === materia.dia_semana.toLowerCase());
           const horaInicio = parseInt(materia.hora_inicio.split(':')[0], 10);
