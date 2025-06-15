@@ -45,9 +45,11 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="card mb-3">
             <div class="card-body">
               <h5 class="card-title">Aula ${aulaSeleccionada}</h5>
+              <ul class="list-group">
               ${atributosArray.map(attr => `
-                <p class="card-text"><strong>${attr.nombre_atributo}:</strong> ${attr.valor}</p>
+                <li class="list-group-item"><strong>${attr.nombre_atributo}:</strong> ${attr.valor}</li>
               `).join('')}
+              </ul>
             </div>
           </div>
         `;

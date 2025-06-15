@@ -16,4 +16,4 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.clear();
       window.location.href = "index.html"
     });
-  });
+});
