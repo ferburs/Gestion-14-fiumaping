@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const selectAula = document.getElementById('selectAula');
   const btnBuscar = document.getElementById('btnBuscar');
   const resultado = document.getElementById('resultadoAula');
-  const isAdmin = localStorage.getItem('userRole') == 'Administrador';
+  const isAdmin = localStorage.getItem('userRole') == 'ADMIN';
 
   let datosAulas = {};
 
