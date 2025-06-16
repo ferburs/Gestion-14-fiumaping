@@ -106,7 +106,8 @@ function adminRemoveRow(e, aulaSeleccionada) {
   const id = tableRowElem.getAttribute('id');
 
   if (id) {
-    fetch(getFullEndpoint(`/api/v1/aulas/${aulaSeleccionada}/atributos/${id}`), {
+    fetch(getFullEndpoint(`/api/v1/aulas/${aulaSeleccionada}/atributos?`
+          + new URLSearchParams({ id: id })), {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',

@@ -81,8 +81,6 @@ class AulaAtributosGetPorCodigo(Resource):
 
         return {"id": id_atributo}, 201
 
-        # raise "Not implemented"
-
     def put(self, codigo_aula: str):
         """
         Actualiza una fila en la tabla atributos. // modifica el actual
@@ -99,7 +97,15 @@ class AulaAtributosGetPorCodigo(Resource):
 
         return {}, 200
 
-        #raise "Not implemented"
+    def delete(self, codigo_aula: str):
+        """
+        Elimina una fila en la tabla atributos.
+        """
+
+        #Elimino el atributo de un aula
+        aula_delete_atribute(codigo_aula, request.args.get('id'))
+
+        return {}, 200
 
 @ns_materias.route("/")
 class MateriasGetTodas(Resource):

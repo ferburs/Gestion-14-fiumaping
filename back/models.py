@@ -71,6 +71,16 @@ def aula_put_update_atribute(codigo_aula: str, nombre_atributo: str, valor: str,
     atributo.valor = valor
     DATABASE.session.commit()
 
+def aula_delete_atribute(codigo_aula: str, id_atributo: int = None):
+    """Elimina un atributo de un aula."""
+    aula = aula_get_by_codigo(codigo_aula)
+
+    if aula is None:
+        raise ValueError("Aula no encontrada")
+
+    DATABASE.session.query(Atributos).filter_by(id=id_atributo).delete()
+    DATABASE.session.commit()
+
 
 
 class Materia(DATABASE.Model):
