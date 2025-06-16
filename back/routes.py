@@ -70,20 +70,36 @@ class AulaAtributosGetPorCodigo(Resource):
         
         return jsonify([a.to_dict() for a in atributos])
 
-    def post(self, codigo_aula: str):
+    def post(self,codigo_aula: str):
         """
         Agrega una fila a la tabla atributos.
         Devuelve el id del elemento agregado a la base de datos
+        //agrega uno nuevo
         """
+        #Le agrego un atributo a un aula
+        id_atributo = aula_post_new_atribute(codigo_aula, request.json["nombre_atributo"], request.json["valor"])
 
-        raise "Not implemented"
+        return jsonify({"id": id_atributo}), 201
+
+        # raise "Not implemented"
 
     def put(self, codigo_aula: str):
         """
-        Actualiza una fila en la tabla atributos.
+        Actualiza una fila en la tabla atributos. // modifica el actual
         """
 
-        raise "Not implemented"
+        #Modifico el atributo de un aula
+        id_atributo = aula_put_update_atribute(
+            codigo_aula,
+            request.json["nombre_atributo"],
+            request.json["valor"],
+            request.json.get("id_atributo")
+        )
+
+
+        return jsonify({"id": id_atributo}), 200
+
+        #raise "Not implemented"
 
 @ns_materias.route("/")
 class MateriasGetTodas(Resource):

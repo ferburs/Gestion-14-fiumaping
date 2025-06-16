@@ -38,6 +38,42 @@ def aula_get_all() -> list[Aula]:
     """Devuelve todas las aulas."""
     return DATABASE.session.query(Aula).all()
 
+def aula_post_new_atribute(codigo_aula: str, nombre_atributo: str, valor: str):
+    """Agrega un nuevo atributo a un aula."""
+    aula = aula_get_by_codigo(codigo_aula)
+    
+    if aula is None:
+        raise ValueError("Aula no encontrada")
+
+    nuevo_atributo = Atributos(
+        codigo_aula=codigo_aula,
+        nombre_atributo=nombre_atributo,
+        valor=valor
+    )
+    
+    DATABASE.session.add(nuevo_atributo)
+    DATABASE.session.commit()
+    
+    return nuevo_atributo.id
+
+def aula_put_update_atribute(codigo_aula: str, nombre_atributo: str, valor: str, id_atributo: int = None):
+    """Actualiza un atributo de un aula."""
+    aula = aula_get_by_codigo(codigo_aula)
+    
+    if aula is None:
+        raise ValueError("Aula no encontrada")
+
+    atributo = DATABASE.session.query(Atributos).filter_by(id=id_atributo)
+    
+    if atributo is None:
+        raise ValueError("Atributo no encontrado")
+
+    atributo.valor = valor
+    DATABASE.session.commit()
+    
+    return atributo.id
+
+
 
 class Materia(DATABASE.Model):
     __tablename__ = 'materias'
