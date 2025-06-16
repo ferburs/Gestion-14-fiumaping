@@ -417,3 +417,11 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 });
+
+window.adminSetToDeleteTableRow = adminSetToDeleteTableRow;
+window.adminSaveAttribute       = adminSaveAttribute;
+window.adminEditRow             = adminEditRow;
+window.adminRemoveRow           = adminRemoveRow;
+window.adminRemoveCalendar      = adminRemoveCalendar;
+window.adminSubmitForm          = adminSubmitForm;
+window.updateMinHorarioFin      = updateMinHorarioFin;
