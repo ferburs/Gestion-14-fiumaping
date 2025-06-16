@@ -1,7 +1,60 @@
 /// <reference path="./api.js" />
 
+function adminSaveAttribute(e, method) {
+  let botonEdit = e.target.closest('button');
+  let tableRowElem = botonEdit.closest('tr');
+  let tableHeadElem = tableRowElem.children[0];
+  let tableDataElem = tableRowElem.children[1];
+  let req = {};
+
+  if (method === "PUT") {
+    req.id = +tableRowElem.getAttribute('id');
+  }
+
+  req.nombre_atributo = tableRowElem.querySelector('th').innerText;
+  req.valor = tableRowElem.querySelector('td').innerText;
+  req.codigo_aula = tableRowElem.closest('div').children[0].innerText.split(' ')[1];
+
+  if (!req.nombre_atributo || !req.valor) {
+    alert('Falta especificar el atributo');
+    return;
+  }
+
+  tableHeadElem.setAttribute('contenteditable', 'false');
+  tableDataElem.setAttribute('contenteditable', 'false');
+
+  botonEdit.children[0].className = "bi bi-pencil-square";
+  botonEdit.setAttribute('onclick', 'adminEditRow(event)');
+
+  let promise = fetch(getFullEndpoint(`/api/v1/aulas/${req.codigo_aula}/atributos`), {
+    method: method,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${localStorage.getItem("authToken")}`
+    },
+    body: JSON.stringify(req)
+  })
+
+  if (method === "POST") {
+    promise.then(res => {
+      if (!res.ok) throw new Error('Error al agregar atributos al aula');
+      return res.json();
+    }).then(res => {
+      tableRowElem.setAttribute('id', res.id);
+    });
+  }
+}
+
 function adminEditRow(e) {
-  console.log(e);
+  let botonEdit = e.target.closest('button');
+  let tableRowElem = botonEdit.closest('tr');
+  let tableDataElem = tableRowElem.children[1];
+
+  tableDataElem.setAttribute('contenteditable', 'plaintext-only');
+
+  botonEdit.children[0].className = "bi bi-check-lg";
+  botonEdit.setAttribute('onclick', 'adminSaveAttribute(event, "PUT")');
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -53,12 +106,15 @@ document.addEventListener('DOMContentLoaded', function () {
               <hr />
               <table id="atributosAula" class="table table-striped">
                 <tbody>
-                  ${atributosArray.map((attr, i) => `
-                  <tr>
+                  ${atributosArray.map((attr) => `
+                  <tr id=${attr.id}>
                     <th scope="row">${attr.nombre_atributo}</th>
                     <td>${attr.valor}</td>
                     ${isAdmin && `
                     <td align="right"><div class="btn-group">
+                      <button class="btn btn-primary" onclick="adminEditRow(event)">
+                        <i class="bi bi-pencil-square"></i>
+                      </button>
                       <button class="btn btn-danger">
                         <i class="bi bi-trash"></i>
                       </button>
@@ -115,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <th contenteditable="plaintext-only"></th>
             <td contenteditable="plaintext-only"></td>
             <td align="right"><div class="btn-group">
-              <button class="btn btn-primary">
+              <button class="btn btn-primary" onclick="adminSaveAttribute(event, 'POST')">
                 <i class="bi bi-check-lg"></i>
               </button>
               <button class="btn btn-danger">
