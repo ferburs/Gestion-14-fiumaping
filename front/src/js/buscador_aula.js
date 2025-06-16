@@ -1,5 +1,31 @@
 import { getFullEndpoint } from './api.js';
 
+const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const HORAS = Array.from({ length: 15 }, (_, i) => `${String(i + 8).padStart(2, '0')}:00`);
+
+const htmlClearCalendarTable = `
+  <table id="calendario" class="table table-bordered text-center">
+    <thead class="table-light">
+      <tr>
+        <th>Hora</th>
+        ${DIAS.map(dia => `<th>${dia}</th>`).join('')}
+      </tr>
+    </thead>
+    <tbody>
+      ${HORAS.map(hora => `
+        <tr>
+          <th scope="row">${hora}</th>
+          ${DIAS.map(() => `<td></td>`).join('')}
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>`;
+
+let toDeleteTableRow = null;
+function adminSetToDeleteTableRow(e) {
+  toDeleteTableRow = e.target.closest('tr');
+}
+
 function adminSaveAttribute(e, method) {
   let botonEdit = e.target.closest('button');
   let tableRowElem = botonEdit.closest('tr');
@@ -31,7 +57,7 @@ function adminSaveAttribute(e, method) {
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      "Authorization": `Bearer ${localStorage.getItem("authToken")}`
+      'Authorization': `Bearer ${localStorage.getItem("authToken")}`
     },
     body: JSON.stringify(req)
   })
@@ -75,14 +101,32 @@ function adminEditRowReset(e) {
   botonEdit.setAttribute('onclick', 'adminEditRow(event)');
 }
 
-function adminRemoveRow(e) {
-  let tableRowElem = e.target.closest('tr');
-  let tableDataElem = tableRowElem.children[1];
+function adminRemoveRow(e, aulaSeleccionada) {
+  let tableRowElem = e.target.closest('tr') ?? toDeleteTableRow;
+  const id = tableRowElem.getAttribute('id');
 
-  if (!tableRowElem.hasAttribute('id')) {
-    tableRowElem.remove();
-    return;
+  if (id) {
+    fetch(getFullEndpoint(`/api/v1/aulas/${aulaSeleccionada}/atributos/${id}`), {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem("authToken")}`
+      },
+    });
   }
+
+  tableRowElem.remove();
+}
+
+function adminRemoveCalendar(e, aulaSeleccionada) {
+  fetch(getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`), {
+    method: 'DELETE',
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem("authToken")}`
+    },
+  });
+  document.querySelector('#calendarContainer').innerHTML = htmlClearCalendarTable;
 }
 
 function adminSubmitForm(e, aulaSeleccionada) {
@@ -105,7 +149,7 @@ function adminSubmitForm(e, aulaSeleccionada) {
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      "Authorization": `Bearer ${localStorage.getItem("authToken")}`
+      'Authorization': `Bearer ${localStorage.getItem("authToken")}`
     },
     body: JSON.stringify({
       codigo: form[0].value,
@@ -125,11 +169,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const selectAula = document.getElementById('selectAula');
   const btnBuscar = document.getElementById('btnBuscar');
   const resultado = document.getElementById('resultadoAula');
-  const isAdmin = localStorage.getItem('userRole') == 'Administrador';
+  const isAdmin = localStorage.getItem('userRole') == 'ADMIN';
 
   let datosAulas = {};
-  const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-  const HORAS = Array.from({ length: 15 }, (_, i) => `${String(i + 8).padStart(2, '0')}:00`);
 
   fetch(getFullEndpoint('/api/v1/aulas/'))
     .then(response => {
@@ -183,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
                       <button class="btn btn-primary" onclick="adminEditRow(event)">
                         <i class="bi bi-pencil-square"></i>
                       </button>
-                      <button class="btn btn-danger" onclick="adminRemoveRow(event)">
+                      <button class="btn btn-danger" data-toggle="modal" data-target="#modalDelete" onclick="adminSetToDeleteTableRow(event)">
                         <i class="bi bi-trash"></i>
                       </button>
                     </div></td>` : ''}
@@ -193,6 +235,22 @@ document.addEventListener('DOMContentLoaded', function () {
                   <tr><td><button id="agregarAtributo" class="btn btn-primary">
                     <i class="bi bi-plus-lg"></i>
                   </button></td></tr>
+                  <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="Confirmar borrar atributo" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Eliminar Atributo</h5>
+                        </div>
+                        <div class="modal-body">
+                          <p>Seguro que desea eliminar este atributo?</p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                          <button id="submitForm" class="btn btn-primary" data-dismiss="modal" onclick="adminRemoveRow(event, ${aulaSeleccionada})">Eliminar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   ` : ""}
                 </tbody>
               </table>
@@ -213,9 +271,32 @@ document.addEventListener('DOMContentLoaded', function () {
               <div class="d-flex p-2 justify-content-between align-items-center">
                 <h5 class="card-title">Calendario de uso del aula</h5>
                 ${isAdmin ? `
-                <button class="btn btn-primary" data-toggle="modal" data-target="#modalCalendario">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
+                <div class="btn-group">
+                  <button class="btn btn-primary" data-toggle="modal" data-target="#modalCalendario">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <button class="btn btn-danger" data-toggle="modal" data-target="#modalResetCalendario">
+                    <i class="bi bi-x">Eliminar</i>
+                  </button>
+                </div>
+                <div class="modal fade" id="modalResetCalendario" tabindex="-1" role="dialog" aria-labelledby="Confirmar Reiniciar Calendario" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Reiniciar Calendario</h5>
+                      </div>
+                      <div class="modal-body">
+                        <div class="alert alert-danger" role="alert">
+                          Se borrara el cronograma para esta aula.
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button id="submitForm" class="btn btn-primary" data-dismiss="modal" onclick="adminRemoveCalendar(event, ${aulaSeleccionada})">Borrar</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div class="modal fade" id="modalCalendario" tabindex="-1" role="dialog" aria-labelledby="Editor de Calendario" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
@@ -260,23 +341,8 @@ document.addEventListener('DOMContentLoaded', function () {
                   </div>
                 </div>` : ""}
               </div>
-              <div class="table-responsive">
-                <table id="calendario" class="table table-bordered text-center">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Hora</th>
-                      ${DIAS.map(dia => `<th>${dia}</th>`).join('')}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${HORAS.map(hora => `
-                      <tr>
-                        <th scope="row">${hora}</th>
-                        ${DIAS.map(() => `<td></td>`).join('')}
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
+              <div id="calendarContainer" class="table-responsive">
+                ${htmlClearCalendarTable}
               </div>
             </div>
           </div>
