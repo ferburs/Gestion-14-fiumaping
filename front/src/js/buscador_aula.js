@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   <tr id=${attr.id}>
                     <th scope="row">${attr.nombre_atributo}</th>
                     <td>${attr.valor}</td>
-                    ${isAdmin && `
+                    ${isAdmin ? `
                     <td align="right"><div class="btn-group">
                       <button class="btn btn-primary" onclick="adminEditRow(event)">
                         <i class="bi bi-pencil-square"></i>
@@ -118,12 +118,14 @@ document.addEventListener('DOMContentLoaded', function () {
                       <button class="btn btn-danger">
                         <i class="bi bi-trash"></i>
                       </button>
-                    </div></td>`}
+                    </div></td>` : ''}
                   </tr>
                   `).join('')}
+                  ${isAdmin ? `
                   <tr><td><button id="agregarAtributo" class="btn btn-primary">
                     <i class="bi bi-plus-lg"></i>
                   </button></td></tr>
+                  ` : ""}
                 </tbody>
               </table>
             </div>
@@ -140,7 +142,68 @@ document.addEventListener('DOMContentLoaded', function () {
         html += `
           <div class="card mb-3">
             <div class="card-body">
-              <h5 class="card-title">Calendario de uso del aula</h5>
+              <div class="d-flex p-2 justify-content-between align-items-center">
+                <h5 class="card-title">Calendario de uso del aula</h5>
+                ${isAdmin ? `
+                <button class="btn btn-primary" data-toggle="modal" data-target="#modalCalendario">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <div class="modal fade" id="modalCalendario" tabindex="-1" role="dialog" aria-labelledby="Editor de Calendario" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Editar Calendario del Aula</h5>
+                      </div>
+                      <div class="modal-body">
+                        <form method="post" action="${getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`)}">
+                          <div class="form-group mb-3">
+                            <label for="inputMateria">Materia</label>
+                            <select id="inputMateria" class="form-control">
+                              <option value="" disabled selected>Elegí una materia</option>
+                            </select>
+                          </div>
+                          <div class="row">
+                            <div class="form-group col-md-4">
+                              <label for="inputDia">Día</label>
+                              <select id="inputDia" class="form-control">
+                                <option value="" disabled selected>Día</option>
+                                ${DIAS.map(dia =>
+                                  `<option>${dia}</option>`
+                                ).join('')}
+                              </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                              <label for="inputInicio">Horario inicio</label>
+                              <select id="inputInicio" class="form-control">
+                                <option value="" disabled selected>Inicio</option>
+                                ${HORAS.map(hora =>
+                                  `<option>${hora}</option>`
+                                ).join('')}
+                              </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                              <label for="inputFin">Horario fin</label>
+                              <select id="inputFin" class="form-control">
+                                <option value="" disabled selected>Fin</option>
+                                ${HORAS.map(hora =>
+                                  `<option>${hora}</option>`
+                                ).join('')}
+                              </select>
+                            </div>
+                          </div>
+                          <br />
+                          <div class="d-md-flex gap-2 d-grid justify-content-md-end">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                      </div>
+                    </div>
+                  </div>
+                </div>` : ""}
+              </div>
               <div class="table-responsive">
                 <table id="calendario" class="table table-bordered text-center">
                   <thead class="table-light">
@@ -166,20 +229,22 @@ document.addEventListener('DOMContentLoaded', function () {
         resultado.innerHTML = html;
         resultado.classList.remove('d-none');
 
-        resultado.querySelector('#agregarAtributo').addEventListener('click', e => {
-          $('#atributosAula tr:last').before(`<tr>
-            <th contenteditable="plaintext-only"></th>
-            <td contenteditable="plaintext-only"></td>
-            <td align="right"><div class="btn-group">
-              <button class="btn btn-primary" onclick="adminSaveAttribute(event, 'POST')">
-                <i class="bi bi-check-lg"></i>
-              </button>
-              <button class="btn btn-danger">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div></td>
-            </tr>`);
-        });
+        if (isAdmin) {
+          resultado.querySelector('#agregarAtributo').addEventListener('click', e => {
+            $('#atributosAula tr:last').before(`<tr>
+              <th contenteditable="plaintext-only"></th>
+              <td contenteditable="plaintext-only"></td>
+              <td align="right"><div class="btn-group">
+                <button class="btn btn-primary" onclick="adminSaveAttribute(event, 'POST')">
+                  <i class="bi bi-check-lg"></i>
+                </button>
+                <button class="btn btn-danger">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div></td>
+              </tr>`);
+          });
+        }
 
         // Llenar las celdas en rojo
         const tabla = resultado.querySelector('#calendario');
@@ -199,6 +264,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
           }
         });
+        console.log(materias);
       })
       .catch(error => {
         console.error('Error al buscar información:', error);
