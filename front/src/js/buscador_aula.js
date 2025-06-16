@@ -52,9 +52,37 @@ function adminEditRow(e) {
   let tableDataElem = tableRowElem.children[1];
 
   tableDataElem.setAttribute('contenteditable', 'plaintext-only');
+  tableDataElem.setAttribute('data-old-value', tableDataElem.innerText);
+  tableDataElem.addEventListener('keydown', adminEditRowReset);
 
   botonEdit.children[0].className = "bi bi-check-lg";
   botonEdit.setAttribute('onclick', 'adminSaveAttribute(event, "PUT")');
+}
+
+function adminEditRowReset(e) {
+  if (e.key !== 'Escape') {
+    return;
+  }
+
+  let tableDataElem = e.target;
+  let botonEdit = tableDataElem.closest('tr').querySelector('.btn-primary');
+
+  tableDataElem.removeEventListener('keydown', adminEditRowReset);
+  tableDataElem.setAttribute('contenteditable', false);
+  tableDataElem.innerText = tableDataElem.getAttribute('data-old-value');
+
+  botonEdit.children[0].className = "bi bi-pencil-square";
+  botonEdit.setAttribute('onclick', 'adminEditRow(event)');
+}
+
+function adminRemoveRow(e) {
+  let tableRowElem = e.target.closest('tr');
+  let tableDataElem = tableRowElem.children[1];
+
+  if (!tableRowElem.hasAttribute('id')) {
+    tableRowElem.remove();
+    return;
+  }
 }
 
 function adminSubmitForm(e, aulaSeleccionada) {
@@ -155,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
                       <button class="btn btn-primary" onclick="adminEditRow(event)">
                         <i class="bi bi-pencil-square"></i>
                       </button>
-                      <button class="btn btn-danger">
+                      <button class="btn btn-danger" onclick="adminRemoveRow(event)">
                         <i class="bi bi-trash"></i>
                       </button>
                     </div></td>` : ''}
@@ -266,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <button class="btn btn-primary" onclick="adminSaveAttribute(event, 'POST')">
                   <i class="bi bi-check-lg"></i>
                 </button>
-                <button class="btn btn-danger">
+                <button class="btn btn-danger" onclick="adminRemoveRow(event)">
                   <i class="bi bi-trash"></i>
                 </button>
               </div></td>
