@@ -110,6 +110,24 @@
         <span id="error-msg" style="color: red; margin-left: 10px;"></span>
     </div>
     
+    <div id="room-info-panel" style="
+      display: none; 
+      position: absolute; 
+      top: 20px; 
+      right: 20px; 
+      background-color: white; 
+      border: 1px solid #ccc; 
+      padding: 15px; 
+      border-radius: 8px; 
+      box-shadow: 0 0 10px rgba(0,0,0,0.2); 
+      z-index: 1000;
+      max-width: 300px; /* para controlar ancho máximo */
+    ">
+      <h4 id="room-info-name"></h4>
+      <img id="room-info-image" src="" alt="Imagen del aula" style="width: 100%; height: auto; display:none; margin-bottom: 10px; border-radius: 4px;">
+      <p id="room-info-description"></p>
+      <button id="close-panel-btn" style="margin-top: 10px;">Cerrar</button>
+    </div>
 
 
     <!-- Contenedor del mapa -->

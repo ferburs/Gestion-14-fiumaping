@@ -1,3 +1,4 @@
+import { setupRoomInfoPanel } from './roomInfoPanel.js';
 
 export function setupSpaceInteractions(mapView, mapData) {
   const spaces = mapData.getByType('space');
@@ -10,6 +11,21 @@ export function setupSpaceInteractions(mapView, mapData) {
   const rutaTipo = document.getElementById("rutaTipo");
   const roomList = document.getElementById("roomList");
   const goButton = document.getElementById("goRoomBotton");
+
+  const infoPanel = document.getElementById("room-info-panel");
+  const infoName = document.getElementById("room-info-name");
+  const infoDescription = document.getElementById("room-info-description");
+  const closePanelButton = document.getElementById("close-panel-btn");
+  const infoImage = document.getElementById("room-info-image");
+
+  const roomDetails = [
+    { 
+      name: "Aula 403", 
+      description: "Aula de Programación. Capacidad: 25 personas.",
+      image: "images/aula403.jpg"
+    },
+  ];
+
 
   mapData.getByType("space").forEach((space) => {
     if (space.type === "room") {
@@ -96,57 +112,14 @@ export function setupSpaceInteractions(mapView, mapData) {
 
     console.log(directions)
 
-    // const directions = mapView.getDirections(origenSpace, destinoSpace, {exclude: ["stairs"]});
-    // if (!directions) {
-    //   alert("No se pudo calcular la ruta a la habitación: " + destinoRoomName + "desde la habitacion: " + origenRoomName);
-    //   return;
-    // }
-
-
-    // Debug: ver qué conexiones usa la ruta
 
     mapView.Navigation.draw(directions);
-
-    // const pathId = mapView.Paths.add(directions.coordinates, {
-    //   nearRadius: 0.5,
-    //   farRadius: 0.5,
-    // });
 
   });
 
 
+  // Evento de clic en el mapa para mostrar información del espacio
+  setupRoomInfoPanel(mapView, roomDetails);
 
-
-  // // 🔹 Sistema de navegación entre espacios (sin cambios)
-  // let startSpace = null;
-  // let currentPathId = null;
-  // const roomInfoDiv = document.getElementById("roomInfo");
-
-  // mapView.on('click', (event) => {
-  //   const clickedSpace = event.spaces?.[0];
-  //   if (!clickedSpace) return;
-
-  //   if (clickedSpace.name && roomInfoDiv) {
-  //     roomInfoDiv.innerText = `Seleccionaste: ${clickedSpace.name}`;
-  //   }
-
-  //   if (!startSpace) {
-  //     startSpace = clickedSpace;
-  //   } else {
-  //     if (currentPathId) {
-  //       mapView.Paths.remove(currentPathId);
-  //     }
-
-  //     const directions = mapView.getDirections(startSpace, clickedSpace);
-  //     if (!directions) return;
-
-  //     currentPathId = mapView.Paths.add(directions.coordinates, {
-  //       nearRadius: 0.5,
-  //       farRadius: 0.5,
-  //     });
-
-  //     startSpace = null;
-  //   }
-  // });
 }
 
