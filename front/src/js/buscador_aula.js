@@ -57,6 +57,42 @@ function adminEditRow(e) {
   botonEdit.setAttribute('onclick', 'adminSaveAttribute(event, "PUT")');
 }
 
+function adminSubmitForm(e, aulaSeleccionada) {
+  let form = document.querySelector('#editForm');
+  const isValid = form.checkValidity();
+
+  form.classList.add('was-validated');
+
+  if (isValid === false) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+
+  form.reset();
+  form.classList.remove('was-validated');
+
+  fetch(getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`), {
+    method: "POST",
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${localStorage.getItem("authToken")}`
+    },
+    body: JSON.stringify({
+      codigo: form[0].value,
+      dia_semana: form[1].value,
+      hora_inicio: form[2].value,
+      hora_fin: form[3].value,
+    }),
+  });
+}
+
+function updateMinHorarioFin(e) {
+  document.querySelector('#inputFin')
+    .setAttribute('min', e.target.value < '08:00' ? '08:00' : e.target.value);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   const selectAula = document.getElementById('selectAula');
   const btnBuscar = document.getElementById('btnBuscar');
@@ -92,6 +128,10 @@ document.addEventListener('DOMContentLoaded', function () {
   btnBuscar.addEventListener('click', () => {
     const aulaSeleccionada = selectAula.value;
     let html = '';
+
+    if (!aulaSeleccionada) {
+      return;
+    }
 
     fetch(getFullEndpoint(`/api/v1/aulas/${aulaSeleccionada}/atributos`))
       .then(response => {
@@ -155,17 +195,17 @@ document.addEventListener('DOMContentLoaded', function () {
                         <h5 class="modal-title">Editar Calendario del Aula</h5>
                       </div>
                       <div class="modal-body">
-                        <form method="post" action="${getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`)}">
+                        <form id="editForm" class="needs-validation" novalidate>
                           <div class="form-group mb-3">
                             <label for="inputMateria">Materia</label>
-                            <select id="inputMateria" class="form-control">
+                            <select id="inputMateria" class="form-control" required>
                               <option value="" disabled selected>Elegí una materia</option>
                             </select>
                           </div>
                           <div class="row">
                             <div class="form-group col-md-4">
                               <label for="inputDia">Día</label>
-                              <select id="inputDia" class="form-control">
+                              <select id="inputDia" class="form-control" required>
                                 <option value="" disabled selected>Día</option>
                                 ${DIAS.map(dia =>
                                   `<option>${dia}</option>`
@@ -174,31 +214,19 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>
                             <div class="form-group col-md-4">
                               <label for="inputInicio">Horario inicio</label>
-                              <select id="inputInicio" class="form-control">
-                                <option value="" disabled selected>Inicio</option>
-                                ${HORAS.map(hora =>
-                                  `<option>${hora}</option>`
-                                ).join('')}
-                              </select>
+                              <input type="time" min="08:00" max="23:00" step="1800" id="inputInicio" onchange="updateMinHorarioFin(event)" class="form-control" required />
                             </div>
                             <div class="form-group col-md-4">
                               <label for="inputFin">Horario fin</label>
-                              <select id="inputFin" class="form-control">
-                                <option value="" disabled selected>Fin</option>
-                                ${HORAS.map(hora =>
-                                  `<option>${hora}</option>`
-                                ).join('')}
-                              </select>
+                              <input type="time" min="08:00" max="23:00" step="1800" id="inputFin" class="form-control" required />
                             </div>
                           </div>
                           <br />
-                          <div class="d-md-flex gap-2 d-grid justify-content-md-end">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Guardar cambios</button>
-                          </div>
                         </form>
                       </div>
                       <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button id="submitForm" class="btn btn-primary" data-dismiss="modal" onclick="adminSubmitForm(event, ${aulaSeleccionada})">Guardar cambios</button>
                       </div>
                     </div>
                   </div>
@@ -264,7 +292,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
           }
         });
-        console.log(materias);
+
+        if (isAdmin) {
+          fetch(getFullEndpoint('/api/v1/materias/'))
+            .then(response => {
+              if (!response.ok) throw new Error('Error al cargar las materias');
+              return response.json();
+            })
+            .then(materias => {
+              let selectMateria = resultado.querySelector('form')[0];
+              for (const materia of materias) {
+                const option = document.createElement('option');
+                option.value = materia.codigo;
+                option.textContent = `${materia.nombre} (${materia.codigo})`;
+                selectMateria.appendChild(option);
+              }
+            })
+        }
       })
       .catch(error => {
         console.error('Error al buscar información:', error);

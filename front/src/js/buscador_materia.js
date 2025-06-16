@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
       placeholderOption.textContent = 'Elegí una materia';
       placeholderOption.disabled = true;
       placeholderOption.selected = true;
+      placeholderOption.value = "";
       selectMateria.appendChild(placeholderOption);
       
       for (const materia of materias) {
