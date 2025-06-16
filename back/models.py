@@ -63,15 +63,13 @@ def aula_put_update_atribute(codigo_aula: str, nombre_atributo: str, valor: str,
     if aula is None:
         raise ValueError("Aula no encontrada")
 
-    atributo = DATABASE.session.query(Atributos).filter_by(id=id_atributo)
+    atributo = DATABASE.session.query(Atributos).filter_by(id=id_atributo).first()
     
     if atributo is None:
         raise ValueError("Atributo no encontrado")
 
     atributo.valor = valor
     DATABASE.session.commit()
-    
-    return atributo.id
 
 
 

@@ -79,7 +79,7 @@ class AulaAtributosGetPorCodigo(Resource):
         #Le agrego un atributo a un aula
         id_atributo = aula_post_new_atribute(codigo_aula, request.json["nombre_atributo"], request.json["valor"])
 
-        return jsonify({"id": id_atributo}), 201
+        return {"id": id_atributo}, 201
 
         # raise "Not implemented"
 
@@ -89,15 +89,15 @@ class AulaAtributosGetPorCodigo(Resource):
         """
 
         #Modifico el atributo de un aula
-        id_atributo = aula_put_update_atribute(
+        aula_put_update_atribute(
             codigo_aula,
             request.json["nombre_atributo"],
             request.json["valor"],
-            request.json.get("id_atributo")
+            request.json["id"]
         )
 
 
-        return jsonify({"id": id_atributo}), 200
+        return {}, 200
 
         #raise "Not implemented"
 
