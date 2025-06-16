@@ -13,15 +13,11 @@ export function setupSpaceInteractions(mapView, mapData) {
   const goButton = document.getElementById("goRoomBotton");
 
   const infoPanel = document.getElementById("room-info-panel");
-  const infoName = document.getElementById("room-info-name");
-  const infoDescription = document.getElementById("room-info-description");
-  const closePanelButton = document.getElementById("close-panel-btn");
-  const infoImage = document.getElementById("room-info-image");
+  infoPanel.style.display = 'none';
 
   const roomDetails = [
     { 
       name: "Aula 403", 
-      description: "Aula de Programación. Capacidad: 25 personas.",
       image: "images/aula403.jpg"
     },
   ];
@@ -86,7 +82,31 @@ export function setupSpaceInteractions(mapView, mapData) {
     const origenRoomName = origen.value.trim();
     const destinoRoomName = destino.value.trim();
     if (!destinoRoomName) return;
-    if (!origenRoomName) return; // cambiar si queremos para que, si no se ingresa origen, este harcodeado con ascensores
+    // si no se ingreso punto de origen, el origen es la puerta de entrada
+    const hallPrincipalSpace = spaces.find(s => s.name.toLowerCase() === "hall principal".toLowerCase());
+
+    if (!hallPrincipalSpace) {
+      alert("No se encontró el hall princiapl");
+      console.log("No se encontró el hall princiapl");
+      return;
+    }
+
+    if (hallPrincipalSpace.doors.length === 0) {
+      alert("El hall principal no tiene puertas asociadas");
+      console.log("El hall principal no tiene puertas asociadas");
+      return;
+    }
+
+    const origenSpace = hallPrincipalSpace.doors.find(door => door.isExterior === true);
+
+
+    if (origenRoomName) { // si se ingreso, se pisa el valor de origenSpace con el correspondeinte
+      origenSpace = spaces.find(s => s.name.toLowerCase() === origenRoomName.toLowerCase());
+      if (!origenSpace) {
+        alert("No se encontró la habitación: " + origenSpace);
+        return; // cambiar si queremos para que, si no se ingresa origen, este harcodeado con ascensores
+      }
+    }
 
     const destinoSpace = spaces.find(s => s.name.toLowerCase() === destinoRoomName.toLowerCase());
     if (!destinoSpace) {
@@ -94,11 +114,7 @@ export function setupSpaceInteractions(mapView, mapData) {
       return;
     }
 
-    const origenSpace = spaces.find(s => s.name.toLowerCase() === origenRoomName.toLowerCase());
-    if (!origenSpace) {
-      alert("No se encontró la habitación: " + origenSpace);
-      return; // cambiar si queremos para que, si no se ingresa origen, este harcodeado con ascensores
-    }
+    
 
     let accessibleRoute = rutaTipo.value === "normal" ? false : true; // si es normal, no es accesible, si es accesible, no es normal
 

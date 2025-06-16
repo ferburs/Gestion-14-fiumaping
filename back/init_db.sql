@@ -1,19 +1,3 @@
---Aula pero con atributo
-
--- CREATE TABLE IF NOT EXISTS aulas2{
---     id INTEGER PRIMARY KEY AUTOINCREMENT,
---     codigo VARCHAR(50) NOT NULL,
---     posicion_x FLOAT NULL,
---     posicion_y FLOAT NULL,
--- }
-
--- INSERT INTO aulas2 (codigo, posicion_x, posicion_y) VALUES
--- ('200', NULL, NULL),
--- ('201', NULL, NULL),
--- ('202', NULL, NULL);
-
-
-
 
 
 CREATE TABLE IF NOT EXISTS aulas (
@@ -46,7 +30,8 @@ VALUES
 ('200', 'Tiza', 'Bancos largos', NULL, NULL),
 ('201', 'Tiza', 'Bancos largos', NULL, NULL),
 ('202', 'Tiza', 'Bancos largos', NULL, NULL),
-('203', 'Tiza', 'Bancos largos', NULL, NULL);
+('203', 'Tiza', 'Bancos largos', NULL, NULL),
+('403', 'Tiza', 'Bancos largos', NULL, NULL);
 --('204', 'Tiza', 'Bancos largos', NULL, NULL),
 --('205', 'Tiza', 'Bancos largos', NULL, NULL),
 --('206', 'Tiza', 'Bancos largos', NULL, NULL),
@@ -100,4 +85,9 @@ INSERT INTO atributos (codigo_aula, nombre_atributo, valor) VALUES
 ('202', 'Tipo Pizarron', 'Marcador'),
 ('202', 'Tipo banco', 'Individual'),
 ('202', 'Ventilacion', 'Ventanas'),
-('202', 'Cantidad enchufes', '0');
+('202', 'Cantidad enchufes', '0'),
+
+('403', 'Tipo Pizarron', 'Tiza'),
+('403', 'Tipo banco', 'Iglesia'),
+('403', 'Ventilacion', 'Ventanas'),
+('403', 'Cantidad enchufes', '2');
