@@ -142,6 +142,13 @@ function adminSubmitForm(e, aulaSeleccionada) {
     return;
   }
 
+  const req = {
+    codigo: form[0].value,
+    dia_semana: form[1].value,
+    hora_inicio: form[2].value,
+    hora_fin: form[3].value,
+  };
+
   fetch(getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`), {
     method: "POST",
     headers: {
@@ -155,7 +162,28 @@ function adminSubmitForm(e, aulaSeleccionada) {
       hora_inicio: form[2].value,
       hora_fin: form[3].value,
     }),
+  }).then(res => {
+      if (!res.ok) {
+        throw new Error("No se pudo agregar el horario");
+      }
   });
+
+  const tabla = document.querySelector('#calendario');
+  const diaIndex = DIAS.findIndex(d => d.toLowerCase() === req.dia_semana.toLowerCase());
+  const horaInicio = parseInt(req.hora_inicio.split(':')[0], 10);
+  const horaFin = parseInt(req.hora_fin.split(':')[0], 10);
+  const nombre_materia = form[0].options[form[0].selectedIndex].getAttribute('data-nombre-materia');
+
+  for (let h = horaInicio; h < horaFin; h++) {
+    const rowIndex = h - 8; // Ajuste desde las 08:00
+    if (rowIndex >= 0 && rowIndex < HORAS.length) {
+      const fila = tabla.rows[rowIndex + 1]; // +1 porque la fila 0 es el encabezado
+      const celda = fila.cells[diaIndex + 1]; // +1 porque la columna 0 es la hora
+      celda.style.backgroundColor = '#2196F3';
+      celda.style.color = 'white';
+      celda.textContent = nombre_materia;
+    }
+  }
 
   form.reset();
   form.classList.remove('was-validated');
@@ -399,6 +427,7 @@ document.addEventListener('DOMContentLoaded', function () {
               for (const materia of materias) {
                 const option = document.createElement('option');
                 option.value = materia.codigo;
+                option.setAttribute('data-nombre-materia', materia.nombre);
                 option.textContent = `${materia.nombre} (${materia.codigo})`;
                 selectMateria.appendChild(option);
               }
