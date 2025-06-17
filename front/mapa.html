@@ -75,48 +75,32 @@
 
     
     <div id="floor-controls" class="p-3 bg-light">
-      <div class="d-flex align-items-end flex-wrap gap-2">
-        <div>
-          <label for="floorSelector" class="form-label">Elegí un piso:</label>
-          <select id="floorSelector" class="form-select" style="max-width: 200px;"></select>
-        </div>
-
-
-        <!--boton para ir a un lugar-->
-
-            <!-- Buscador -->
-      <!-- <div class="container mt-5">
-      <h3>Buscar Materia</h3>
-      <div class="mb-3">
-
-      
-        <select id="selectMateria" class="selectpicker form-control" data-live-search="true">
-          <option disabled selected>Elegí una materia</option>
-        </select>
-          
-        </div>
-        <button id="btnBuscarMateria" class="btn btn-primary mb-4">Buscar</button>
-        Resultado -->
-        <!-- <div id="resultadoMateria" class="card d-none">
-        <div class="card-body">
-            <h5 class="card-title" id="materiaTitulo"></h5>
-            <p class="card-text" id="materiaCodigo"></p>
-            <p class="card-text" id="materiaAulas"></p>
-        </div> --> 
-        <input list="roomList" id="origen" class="form-control" style="max-width: 200px;" placeholder="Origen">
-
-        <input list="roomList" id="destino" class="form-control" style="max-width: 200px;" placeholder="Destino">
-
-        <select id="rutaTipo" class="form-select" style="max-width: 200px;">
-          <option value="normal">Ruta normal</option>
-          <option value="accessible">Ruta accesible</option>
-        </select>
-  
-        <datalist id="roomList"></datalist>
-        <button id="goRoomBotton" class="btn btn-primary">Ir</button>
-        <span id="error-msg"></span>
-        <span id="error-msg" style="color: red; margin-left: 10px;"></span>
+  <div class="d-flex justify-content-between align-items-end flex-wrap w-100">
+    <!-- Selector de piso a la izquierda -->
+    <div>
+      <label for="floorSelector" class="form-label mb-1">Elegí un piso:</label>
+      <select id="floorSelector" class="form-select" style="width: 200px;"></select>
     </div>
+
+    <!-- Inputs alineados a la derecha -->
+    <div class="d-flex gap-2 flex-wrap">
+      <input list="roomList" id="origen" class="form-control" placeholder="Origen" style="width: 200px;">
+      <input list="roomList" id="destino" class="form-control" placeholder="Destino" style="width: 200px;">
+      <select id="rutaTipo" class="form-select" style="width: 200px;">
+        <option value="normal">Ruta normal</option>
+        <option value="accessible">Ruta accesible</option>
+      </select>
+      <datalist id="roomList"></datalist>
+      <button id="goRoomBotton" class="btn btn-primary">Ir</button>
+    </div>
+  </div>
+
+  <!-- Mensajes de error (pueden ajustarse según lógica JS) -->
+  <div class="mt-2">
+    <span id="error-msg" class="text-danger"></span>
+  </div>
+
+</div>
 
 
 
