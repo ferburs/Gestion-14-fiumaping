@@ -83,10 +83,9 @@
         <!-- --------------------------------------------------------------------------------------------- -->
         <!-- Resultado -->
         <div id="resultadoMateria" class="card d-none">
-        <div class="card-body">
+          <div id="tablaAulasContainer" class="card-body">
             <h5 class="card-title" id="materiaTitulo"></h5>
-            <p class="card-text" id="materiaCodigo"></p>
-            <p class="card-text" id="materiaAulas"></p>
+          </div>
         </div>
 
       
@@ -94,6 +93,87 @@
      
     <!-- --------------------------------------------------------------------------------------------- -->
 
+    <template id="templateTablaHorarios">
+      <div class="table-responsive" id="materiaAulas">
+        <strong>Aulas donde se dicta:</strong>
+        <table id="calendario" class="table table-bordered text-center">
+          <thead class="table-light">
+            <tr>
+              <th>Hora</th>
+              <th>Lunes</th>
+              <th>Martes</th>
+              <th>Miércoles</th>
+              <th>Jueves</th>
+              <th>Viernes</th>
+              <th>Sábado</th>
+              <th>Domingo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">08:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">09:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">10:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">11:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">12:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">13:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">14:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">15:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">16:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">17:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">18:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">19:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">20:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">21:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <th scope="row">22:00</th><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
 
 
     <!-- jQuery -->
