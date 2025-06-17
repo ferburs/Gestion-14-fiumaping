@@ -142,9 +142,6 @@ function adminSubmitForm(e, aulaSeleccionada) {
     return;
   }
 
-  form.reset();
-  form.classList.remove('was-validated');
-
   fetch(getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`), {
     method: "POST",
     headers: {
@@ -159,6 +156,9 @@ function adminSubmitForm(e, aulaSeleccionada) {
       hora_fin: form[3].value,
     }),
   });
+
+  form.reset();
+  form.classList.remove('was-validated');
 }
 
 function updateMinHorarioFin(e) {

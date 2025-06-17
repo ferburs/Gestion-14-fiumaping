@@ -147,6 +147,29 @@ class MateriaPorAula(Resource):
 
         return materias_por_aula_get(codigo_aula)
 
+    def post(self, codigo_aula: str):
+        """
+        Agrega el horario de una materia al cronograma de un aula
+        """
+
+        id_aula_materia = materias_por_aula_post(
+            codigo_aula,
+            request.json['codigo'],
+            request.json['dia_semana'],
+            request.json['hora_inicio'],
+            request.json['hora_fin'],
+        )
+
+        return {"id": id_aula_materia}, 201
+
+    def delete(self, codigo_aula: str):
+        """
+        Elimina el cronograma correspondiente a un aula
+        """
+
+        materias_por_aula_delete(codigo_aula)
+
+        return 200
     
 @ns_auth.route('/google-login')
 class GoogleLogin(Resource):

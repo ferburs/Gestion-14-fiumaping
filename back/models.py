@@ -1,6 +1,9 @@
 # src/models.py
 from flask_sqlalchemy import SQLAlchemy
 import logging
+import time
+import datetime as dt
+
 DATABASE = SQLAlchemy()
 
 class Aula(DATABASE.Model):
@@ -122,10 +125,48 @@ def materias_por_aula_get(codigo_aula: str) -> list[Materia]:
     
     #return DATABASE.session.query(AulaMateria).filter_by(codigo_aula=codigo_aula).all()
 
+def materias_por_aula_post(codigo_aula: str, codigo_materia: str, dia_semana: str, hora_inicio: str, hora_fin: str) -> list[Materia]:
+    """Agrega el horario de una materia en un aula"""
+    aula = aula_get_by_codigo(codigo_aula)
+
+    if aula is None:
+        raise ValueError("Aula no encontrada")
+
+    materia = materia_get_by_codigo(codigo_materia)
+
+    if materia is None:
+        raise ValueError("Materia no encontrada")
+
+    time_inicio=time.strptime(hora_inicio, '%H:%M')
+    time_fin=time.strptime(hora_fin, '%H:%M')
+
+    nuevo_horario = AulaMateria(
+        codigo_aula=codigo_aula,
+        codigo_materia=codigo_materia,
+        dia_semana=dia_semana,
+        hora_inicio=dt.time(time_inicio.tm_hour, time_inicio.tm_min),
+        hora_fin=dt.time(time_fin.tm_hour, time_fin.tm_min),
+    )
+
+    DATABASE.session.add(nuevo_horario)
+    DATABASE.session.commit()
+
+    return nuevo_horario.id
+
+def materias_por_aula_delete(codigo_aula: str) -> list[Materia]:
+    """Elimina los horarios de todas las materias dictadas en un aula"""
+
+    DATABASE.session.query(AulaMateria).filter_by(codigo_aula=codigo_aula).delete()
+    DATABASE.session.commit()
+
 
 def materia_get_all() -> list[Materia]:
     """Devuelve todas las materias."""
     return DATABASE.session.query(Materia).all()
+
+def materia_get_by_codigo(codigo) -> Aula:
+    """Devuelve la materia con el codigo especificado."""
+    return DATABASE.session.query(Materia).filter_by(codigo=codigo).first()
 
 
 class AulaMateria(DATABASE.Model):
