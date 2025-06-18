@@ -138,6 +138,30 @@ class MateriaHorariosGetPorCodigo(Resource):
             for aula_materia, aula, materia in aulas_materia
         ]
 
+    def post(self, codigo_materia: str):
+        """
+        Agrega el horario de una materia al cronograma de un aula
+        """
+
+        id_aula_materia = materias_por_aula_post(
+            request.json['codigo_aula'],
+            codigo_materia,
+            request.json['dia_semana'],
+            request.json['hora_inicio'],
+            request.json['hora_fin'],
+        )
+
+        return {"id": id_aula_materia}, 201
+
+    def delete(self, codigo_materia: str):
+        """
+        Elimina el cronograma correspondiente a una materia
+        """
+
+        materias_por_aula_delete(codigo_materia=codigo_materia)
+
+        return 200
+
 @ns_materias.route("/<string:codigo_aula>/materias")
 class MateriaPorAula(Resource):
     def get(self, codigo_aula: str):
@@ -167,7 +191,7 @@ class MateriaPorAula(Resource):
         Elimina el cronograma correspondiente a un aula
         """
 
-        materias_por_aula_delete(codigo_aula)
+        materias_por_aula_delete(codigo_aula=codigo_aula)
 
         return 200
     

@@ -1,5 +1,78 @@
 import { getFullEndpoint } from './api.js';
 
+function adminRemoveCalendar(e) {
+  const codigo = document.getElementById('selectMateria').value;
+  fetch(getFullEndpoint('/api/v1/materias/' + codigo), {
+    method: 'DELETE',
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem("authToken")}`
+    },
+  });
+  const oldAulas = document.querySelector('#materiaAulas');
+  const templateTablaHorarios = document.querySelector('#templateTablaHorarios');
+  const clone = templateTablaHorarios.content.cloneNode(true);
+  tablaAulasContainer.replaceChild(clone, oldAulas);
+}
+
+function adminSubmitForm(e) {
+  let form = document.querySelector('#editForm');
+  const isValid = form.checkValidity();
+
+  form.classList.add('was-validated');
+
+  if (isValid === false) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+
+  const req = {
+    codigo_aula: form[0].value,
+    dia_semana: form[1].value,
+    hora_inicio: form[2].value,
+    hora_fin: form[3].value,
+  };
+
+  const codigoMateria = document.getElementById('selectMateria').value;
+  fetch(getFullEndpoint(`/api/v1/materias/${codigoMateria}`), {
+    method: "POST",
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem("authToken")}`
+    },
+    body: JSON.stringify(req),
+  }).then(res => {
+      if (!res.ok) {
+        throw new Error("No se pudo agregar el horario");
+      }
+  });
+
+  const tabla = document.querySelector('#calendario');
+  const diaIndex = form[1].selectedIndex - 1; // -1 porque la opcion 0 es "Día"
+  const horaInicio = parseInt(req.hora_inicio.split(':')[0], 10);
+  const horaFin = parseInt(req.hora_fin.split(':')[0], 10);
+  const aula = 'Aula ' + req.codigo_aula;
+
+  for (let h = horaInicio; h < horaFin; h++) {
+    const rowIndex = h - 8; // Ajuste desde las 08:00
+    const fila = tabla.rows[rowIndex + 1]; // +1 porque la fila 0 es el encabezado
+    const celda = fila.cells[diaIndex + 1]; // +1 porque la columna 0 es la hora
+    celda.style.backgroundColor = '#2196F3';
+    celda.style.color = 'white';
+    celda.textContent = aula;
+  }
+
+  form.reset();
+  form.classList.remove('was-validated');
+}
+
+function updateMinHorarioFin(e) {
+  document.querySelector('#inputFin')
+    .setAttribute('min', e.target.value < '08:00' ? '08:00' : e.target.value);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const selectMateria = document.getElementById('selectMateria');
   const btnBuscar = document.getElementById('btnBuscarMateria');
@@ -7,6 +80,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const tablaAulasContainer = document.getElementById('tablaAulasContainer');
   const materiaTitulo = document.getElementById('materiaTitulo');
   const templateTablaHorarios = document.querySelector('#templateTablaHorarios');
+  const isAdmin = localStorage.getItem('userRole') === 'ADMIN';
+
+  if (isAdmin) {
+    const templateBotonesAdmin = document.querySelector('#templateBotonesAdmin');
+    const clone = templateBotonesAdmin.content.cloneNode(true);
+
+    const btnEliminar = clone.querySelector('#modalResetCalendario .btn-primary');
+    btnEliminar.addEventListener('click', adminRemoveCalendar);
+
+    const btnSubmit = clone.querySelector('#submitForm');
+    btnSubmit.addEventListener('click', adminSubmitForm);
+
+    const inputInicio = clone.querySelector('#inputInicio');
+    inputInicio.addEventListener('change', updateMinHorarioFin);
+
+    const selectAula = clone.querySelector('#inputAula');
+    fetch(getFullEndpoint('/api/v1/aulas/'))
+      .then(response => {
+        if (!response.ok) throw new Error('Error al cargar las materias');
+        return response.json();
+      })
+      .then(aulas => {
+        for (const aula of aulas) {
+          const option = document.createElement('option');
+          option.value = aula.codigo;
+          option.textContent = aula.codigo;
+          selectAula.appendChild(option);
+        }
+      })
+    materiaTitulo.after(clone);
+  }
 
   let materiasData = {};
 
@@ -79,9 +183,9 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
-        const oldMaterias = document.querySelector('#materiaAulas');
-        if (oldMaterias !== null) {
-          tablaAulasContainer.replaceChild(clone, oldMaterias);
+        const oldAulas = document.querySelector('#materiaAulas');
+        if (oldAulas !== null) {
+          tablaAulasContainer.replaceChild(clone, oldAulas);
         } else {
           tablaAulasContainer.appendChild(clone);
         }
@@ -91,4 +195,3 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 });
-  
