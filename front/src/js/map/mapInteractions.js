@@ -97,7 +97,7 @@ export function setupSpaceInteractions(mapView, mapData) {
       return;
     }
 
-    const origenSpace = hallPrincipalSpace.doors.find(door => door.isExterior === true);
+    let origenSpace = hallPrincipalSpace.doors.find(door => door.isExterior === true);
 
 
     if (origenRoomName) { // si se ingreso, se pisa el valor de origenSpace con el correspondeinte
