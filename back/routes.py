@@ -22,6 +22,35 @@ logger = get_logger()
 oauth = OAuth()
 google = None  # lo inicializamos luego en app.py
 
+def authorization(request):
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return {"error": "Token no provisto"}, 401
+
+    token = auth_header.split(" ")[1]
+
+    try:
+        payload = jwt.decode(token, Config.JWT_SECRET, algorithms=["HS256"])
+        return {
+            "email": payload.get("email"),
+            "name": payload.get("name"),
+            "role": payload.get("role"),
+        }, 200
+    except jwt.ExpiredSignatureError:
+        return {"error": "Token expirado"}, 401
+    except jwt.InvalidTokenError:
+        return {"error": "Token inválido"}, 401
+
+def is_success(status):
+    return 200 <= status <= 299
+
+def require_admin(request):
+    auth_response = authorization(request)
+    if auth_response[0].get('role') != 'ADMIN':
+        if is_success(auth_response[1]):
+            return {"error": "Acceso denegado"}, 403
+    return auth_response
+
 @ns_aulas.route("/")
 class AulaGetTodas(Resource):
     def get(self):
@@ -76,6 +105,11 @@ class AulaAtributosGetPorCodigo(Resource):
         Devuelve el id del elemento agregado a la base de datos
         //agrega uno nuevo
         """
+
+        auth_response = require_admin(request)
+        if not is_success(auth_response[1]):
+            return auth_response
+
         #Le agrego un atributo a un aula
         id_atributo = aula_post_new_atribute(codigo_aula, request.json["nombre_atributo"], request.json["valor"])
 
@@ -85,6 +119,10 @@ class AulaAtributosGetPorCodigo(Resource):
         """
         Actualiza una fila en la tabla atributos. // modifica el actual
         """
+
+        auth_response = require_admin(request)
+        if not is_success(auth_response[1]):
+            return auth_response
 
         #Modifico el atributo de un aula
         aula_put_update_atribute(
@@ -101,6 +139,10 @@ class AulaAtributosGetPorCodigo(Resource):
         """
         Elimina una fila en la tabla atributos.
         """
+
+        auth_response = require_admin(request)
+        if not is_success(auth_response[1]):
+            return auth_response
 
         #Elimino el atributo de un aula
         aula_delete_atribute(codigo_aula, request.args.get('id'))
@@ -143,6 +185,10 @@ class MateriaHorariosGetPorCodigo(Resource):
         Agrega el horario de una materia al cronograma de un aula
         """
 
+        auth_response = require_admin(request)
+        if not is_success(auth_response[1]):
+            return auth_response
+
         id_aula_materia = materias_por_aula_post(
             request.json['codigo_aula'],
             codigo_materia,
@@ -157,6 +203,10 @@ class MateriaHorariosGetPorCodigo(Resource):
         """
         Elimina el cronograma correspondiente a una materia
         """
+
+        auth_response = require_admin(request)
+        if not is_success(auth_response[1]):
+            return auth_response
 
         materias_por_aula_delete(codigo_materia=codigo_materia)
 
@@ -176,6 +226,10 @@ class MateriaPorAula(Resource):
         Agrega el horario de una materia al cronograma de un aula
         """
 
+        auth_response = require_admin(request)
+        if not is_success(auth_response[1]):
+            return auth_response
+
         id_aula_materia = materias_por_aula_post(
             codigo_aula,
             request.json['codigo'],
@@ -190,6 +244,10 @@ class MateriaPorAula(Resource):
         """
         Elimina el cronograma correspondiente a un aula
         """
+
+        auth_response = require_admin(request)
+        if not is_success(auth_response[1]):
+            return auth_response
 
         materias_por_aula_delete(codigo_aula=codigo_aula)
 
@@ -216,23 +274,7 @@ class GoogleLogin(Resource):
 @ns_auth.route('/user-info')
 class UserInfo(Resource):
     def get(self):
-        auth_header = request.headers.get('Authorization')
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return {"error": "Token no provisto"}, 401
-
-        token = auth_header.split(" ")[1]
-
-        try:
-            payload = jwt.decode(token, Config.JWT_SECRET, algorithms=["HS256"])
-            return {
-                "email": payload.get("email"),
-                "name": payload.get("name"),
-                "role": payload.get("role"),
-            }, 200
-        except jwt.ExpiredSignatureError:
-            return {"error": "Token expirado"}, 401
-        except jwt.InvalidTokenError:
-            return {"error": "Token inválido"}, 401
+        return authorization(request)
 
 @api_bp.route('/auth/callback')
 def google_callback():
