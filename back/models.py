@@ -153,10 +153,10 @@ def materias_por_aula_post(codigo_aula: str, codigo_materia: str, dia_semana: st
 
     return nuevo_horario.id
 
-def materias_por_aula_delete(codigo_aula: str) -> list[Materia]:
-    """Elimina los horarios de todas las materias dictadas en un aula"""
+def materias_por_aula_delete(**filters):
+    """Elimina filas de la tabla 'aula_materias' segun los filtros indicados"""
 
-    DATABASE.session.query(AulaMateria).filter_by(codigo_aula=codigo_aula).delete()
+    DATABASE.session.query(AulaMateria).filter_by(**filters).delete()
     DATABASE.session.commit()
 
 

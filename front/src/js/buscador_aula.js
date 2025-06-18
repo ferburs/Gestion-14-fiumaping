@@ -156,12 +156,7 @@ function adminSubmitForm(e, aulaSeleccionada) {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem("authToken")}`
     },
-    body: JSON.stringify({
-      codigo: form[0].value,
-      dia_semana: form[1].value,
-      hora_inicio: form[2].value,
-      hora_fin: form[3].value,
-    }),
+    body: JSON.stringify(req),
   }).then(res => {
       if (!res.ok) {
         throw new Error("No se pudo agregar el horario");
