@@ -34,4 +34,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const loginButton = document.getElementById("login-admin-btn");
     loginButton.href = loginUrl;
+
+    if (urlParams.has("error")) {
+        const alertElem = document.getElementById("alert-error");
+        alertElem.innerText = urlParams.get("error");
+        alertElem.classList.remove('d-none');
+    }
 });
