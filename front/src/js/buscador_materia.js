@@ -1,7 +1,7 @@
 import { fetchAPI } from './api.js';
 
 function adminRemoveCalendar(e) {
-  const codigo = document.getElementById('selectMateria').value;
+  const codigo = document.getElementById('select-materia').value;
   fetchAPI('api/v1/materias/' + codigo, {
     method: 'DELETE',
     headers: {
@@ -9,14 +9,14 @@ function adminRemoveCalendar(e) {
       'Authorization': `Bearer ${localStorage.getItem("authToken")}`
     },
   });
-  const oldAulas = document.querySelector('#materiaAulas');
-  const templateTablaHorarios = document.querySelector('#templateTablaHorarios');
+  const oldAulas = document.getElementById('materia-aulas');
+  const templateTablaHorarios = document.getElementById('template-tabla-horarios');
   const clone = templateTablaHorarios.content.cloneNode(true);
   tablaAulasContainer.replaceChild(clone, oldAulas);
 }
 
 function adminSubmitForm(e) {
-  let form = document.querySelector('#editForm');
+  let form = document.getElementById('edit-form');
   const isValid = form.checkValidity();
 
   form.classList.add('was-validated');
@@ -34,7 +34,7 @@ function adminSubmitForm(e) {
     hora_fin: form[3].value,
   };
 
-  const codigoMateria = document.getElementById('selectMateria').value;
+  const codigoMateria = document.getElementById('select-materia').value;
   fetchAPI(`api/v1/materias/${codigoMateria}`, {
     method: "POST",
     headers: {
@@ -49,7 +49,7 @@ function adminSubmitForm(e) {
       }
   });
 
-  const tabla = document.querySelector('#calendario');
+  const tabla = document.getElementById('calendario');
   const diaIndex = form[1].selectedIndex - 1; // -1 porque la opcion 0 es "Día"
   const horaInicio = parseInt(req.hora_inicio.split(':')[0], 10);
   const horaFin = parseInt(req.hora_fin.split(':')[0], 10);
@@ -69,33 +69,33 @@ function adminSubmitForm(e) {
 }
 
 function updateMinHorarioFin(e) {
-  document.querySelector('#inputFin')
+  document.getElementById('input-fin')
     .setAttribute('min', e.target.value < '08:00' ? '08:00' : e.target.value);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const selectMateria = document.getElementById('selectMateria');
-  const btnBuscar = document.getElementById('btnBuscarMateria');
-  const resultado = document.getElementById('resultadoMateria');
-  const tablaAulasContainer = document.getElementById('tablaAulasContainer');
-  const materiaTitulo = document.getElementById('materiaTitulo');
-  const templateTablaHorarios = document.querySelector('#templateTablaHorarios');
+  const selectMateria = document.getElementById('select-materia');
+  const btnBuscar = document.getElementById('btn-buscar-materia');
+  const resultado = document.getElementById('resultado-materia');
+  const tablaAulasContainer = document.getElementById('tabla-aulas-container');
+  const materiaTitulo = document.getElementById('materia-titulo');
+  const templateTablaHorarios = document.getElementById('template-tabla-horarios');
   const isAdmin = localStorage.getItem('userRole') === 'ADMIN';
 
   if (isAdmin) {
-    const templateBotonesAdmin = document.querySelector('#templateBotonesAdmin');
+    const templateBotonesAdmin = document.getElementById('template-botones-admin');
     const clone = templateBotonesAdmin.content.cloneNode(true);
 
-    const btnEliminar = clone.querySelector('#modalResetCalendario .btn-primary');
+    const btnEliminar = clone.querySelector('#modal-reset-calendario .btn-primary');
     btnEliminar.addEventListener('click', adminRemoveCalendar);
 
-    const btnSubmit = clone.querySelector('#submitForm');
+    const btnSubmit = clone.querySelector('#submit-form');
     btnSubmit.addEventListener('click', adminSubmitForm);
 
-    const inputInicio = clone.querySelector('#inputInicio');
+    const inputInicio = clone.querySelector('#input-inicio');
     inputInicio.addEventListener('change', updateMinHorarioFin);
 
-    const selectAula = clone.querySelector('#inputAula');
+    const selectAula = clone.querySelector('#input-aula');
     fetchAPI('api/v1/aulas/')
       .then(response => {
         if (!response.ok) throw new Error('Error al cargar las materias');
@@ -104,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(aulas => {
         for (const aula of aulas) {
           const option = document.createElement('option');
-          option.value = aula.codigo;
           option.textContent = aula.codigo;
           selectAula.appendChild(option);
         }
@@ -183,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
-        const oldAulas = document.querySelector('#materiaAulas');
+        const oldAulas = document.getElementById('materia-aulas');
         if (oldAulas !== null) {
           tablaAulasContainer.replaceChild(clone, oldAulas);
         } else {

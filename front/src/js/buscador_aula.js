@@ -127,11 +127,11 @@ function adminRemoveCalendar(e, aulaSeleccionada) {
       'Authorization': `Bearer ${localStorage.getItem("authToken")}`
     },
   });
-  document.querySelector('#calendarContainer').innerHTML = htmlClearCalendarTable;
+  document.getElementById('calendar-container').innerHTML = htmlClearCalendarTable;
 }
 
 function adminSubmitForm(e, aulaSeleccionada) {
-  let form = document.querySelector('#editForm');
+  let form = document.getElementById('edit-form');
   const isValid = form.checkValidity();
 
   form.classList.add('was-validated');
@@ -163,7 +163,7 @@ function adminSubmitForm(e, aulaSeleccionada) {
       }
   });
 
-  const tabla = document.querySelector('#calendario');
+  const tabla = document.getElementById('calendario');
   const diaIndex = DIAS.findIndex(d => d.toLowerCase() === req.dia_semana.toLowerCase());
   const horaInicio = parseInt(req.hora_inicio.split(':')[0], 10);
   const horaFin = parseInt(req.hora_fin.split(':')[0], 10);
@@ -185,14 +185,14 @@ function adminSubmitForm(e, aulaSeleccionada) {
 }
 
 function updateMinHorarioFin(e) {
-  document.querySelector('#inputFin')
+  document.getElementById('input-fin')
     .setAttribute('min', e.target.value < '08:00' ? '08:00' : e.target.value);
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  const selectAula = document.getElementById('selectAula');
-  const btnBuscar = document.getElementById('btnBuscar');
-  const resultado = document.getElementById('resultadoAula');
+  const selectAula = document.getElementById('select-aula');
+  const btnBuscar = document.getElementById('btn-buscar');
+  const resultado = document.getElementById('resultado-aula');
   const isAdmin = localStorage.getItem('userRole') == 'ADMIN';
 
   let datosAulas = {};
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="card-body">
               <h5 class="card-title">Aula ${aulaSeleccionada}</h5>
               <hr />
-              <table id="atributosAula" class="table table-striped">
+              <table id="atributos-aula" class="table table-striped">
                 <tbody>
                   ${atributosArray.map((attr) => `
                   <tr id=${attr.id}>
@@ -249,17 +249,17 @@ document.addEventListener('DOMContentLoaded', function () {
                       <button class="btn btn-primary" onclick="adminEditRow(event)">
                         <i class="bi bi-pencil-square"></i>
                       </button>
-                      <button class="btn btn-danger" data-toggle="modal" data-target="#modalDelete" onclick="adminSetToDeleteTableRow(event)">
+                      <button class="btn btn-danger" data-toggle="modal" data-target="#modal-delete" onclick="adminSetToDeleteTableRow(event)">
                         <i class="bi bi-trash"></i>
                       </button>
                     </div></td>` : ''}
                   </tr>
                   `).join('')}
                   ${isAdmin ? `
-                  <tr><td><button id="agregarAtributo" class="btn btn-primary">
+                  <tr><td><button id="agregar-atributo" class="btn btn-primary">
                     <i class="bi bi-plus-lg"></i>
                   </button></td></tr>
-                  <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="Confirmar borrar atributo" aria-hidden="true">
+                  <div class="modal fade" id="modal-delete" tabindex="-1" role="dialog" aria-labelledby="Confirmar borrar atributo" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                       <div class="modal-content">
                         <div class="modal-header">
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                         <div class="modal-footer">
                           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                          <button id="submitForm" class="btn btn-primary" data-dismiss="modal" onclick="adminRemoveRow(event, ${aulaSeleccionada})">Eliminar</button>
+                          <button id="submit-form" class="btn btn-primary" data-dismiss="modal" onclick="adminRemoveRow(event, ${aulaSeleccionada})">Eliminar</button>
                         </div>
                       </div>
                     </div>
@@ -296,14 +296,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 <h5 class="card-title">Calendario de uso del aula</h5>
                 ${isAdmin ? `
                 <div class="btn-group">
-                  <button class="btn btn-primary" data-toggle="modal" data-target="#modalCalendario">
+                  <button class="btn btn-primary" data-toggle="modal" data-target="#modal-calendario">
                     <i class="bi bi-pencil-square"></i>
                   </button>
-                  <button class="btn btn-danger" data-toggle="modal" data-target="#modalResetCalendario">
+                  <button class="btn btn-danger" data-toggle="modal" data-target="#modal-reset-calendario">
                     <i class="bi bi-x">Eliminar</i>
                   </button>
                 </div>
-                <div class="modal fade" id="modalResetCalendario" tabindex="-1" role="dialog" aria-labelledby="Confirmar Reiniciar Calendario" aria-hidden="true">
+                <div class="modal fade" id="modal-reset-calendario" tabindex="-1" role="dialog" aria-labelledby="Confirmar Reiniciar Calendario" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                       <div class="modal-header">
@@ -316,29 +316,29 @@ document.addEventListener('DOMContentLoaded', function () {
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                        <button id="submitForm" class="btn btn-primary" data-dismiss="modal" onclick="adminRemoveCalendar(event, ${aulaSeleccionada})">Borrar</button>
+                        <button id="submit-form" class="btn btn-primary" data-dismiss="modal" onclick="adminRemoveCalendar(event, ${aulaSeleccionada})">Borrar</button>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="modal fade" id="modalCalendario" tabindex="-1" role="dialog" aria-labelledby="Editor de Calendario" aria-hidden="true">
+                <div class="modal fade" id="modal-calendario" tabindex="-1" role="dialog" aria-labelledby="Editor de Calendario" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                       <div class="modal-header">
                         <h5 class="modal-title">Editar Calendario del Aula</h5>
                       </div>
                       <div class="modal-body">
-                        <form id="editForm" class="needs-validation" novalidate>
+                        <form id="edit-form" class="needs-validation" novalidate>
                           <div class="form-group mb-3">
-                            <label for="inputMateria">Materia</label>
-                            <select id="inputMateria" class="form-control" required>
+                            <label for="input-materia">Materia</label>
+                            <select id="input-materia" class="form-control" required>
                               <option value="" disabled selected>Elegí una materia</option>
                             </select>
                           </div>
                           <div class="row">
                             <div class="form-group col-md-4">
-                              <label for="inputDia">Día</label>
-                              <select id="inputDia" class="form-control" required>
+                              <label for="input-dia">Día</label>
+                              <select id="input-dia" class="form-control" required>
                                 <option value="" disabled selected>Día</option>
                                 ${DIAS.map(dia =>
                                   `<option>${dia}</option>`
@@ -346,12 +346,12 @@ document.addEventListener('DOMContentLoaded', function () {
                               </select>
                             </div>
                             <div class="form-group col-md-4">
-                              <label for="inputInicio">Horario inicio</label>
-                              <input type="time" min="08:00" max="23:00" step="1800" id="inputInicio" onchange="updateMinHorarioFin(event)" class="form-control" required />
+                              <label for="input-inicio">Horario inicio</label>
+                              <input type="time" min="08:00" max="23:00" step="1800" id="input-inicio" onchange="updateMinHorarioFin(event)" class="form-control" required />
                             </div>
                             <div class="form-group col-md-4">
-                              <label for="inputFin">Horario fin</label>
-                              <input type="time" min="08:00" max="23:00" step="1800" id="inputFin" class="form-control" required />
+                              <label for="input-fin">Horario fin</label>
+                              <input type="time" min="08:00" max="23:00" step="1800" id="input-fin" class="form-control" required />
                             </div>
                           </div>
                           <br />
@@ -359,13 +359,13 @@ document.addEventListener('DOMContentLoaded', function () {
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                        <button id="submitForm" class="btn btn-primary" data-dismiss="modal" onclick="adminSubmitForm(event, ${aulaSeleccionada})">Guardar cambios</button>
+                        <button id="submit-form" class="btn btn-primary" data-dismiss="modal" onclick="adminSubmitForm(event, ${aulaSeleccionada})">Guardar cambios</button>
                       </div>
                     </div>
                   </div>
                 </div>` : ""}
               </div>
-              <div id="calendarContainer" class="table-responsive">
+              <div id="calendar-container" class="table-responsive">
                 ${htmlClearCalendarTable}
               </div>
             </div>
@@ -376,8 +376,8 @@ document.addEventListener('DOMContentLoaded', function () {
         resultado.classList.remove('d-none');
 
         if (isAdmin) {
-          resultado.querySelector('#agregarAtributo').addEventListener('click', e => {
-            $('#atributosAula tr:last').before(`<tr>
+          resultado.querySelector('#agregar-atributo').addEventListener('click', e => {
+            $('#atributos-aula tr:last').before(`<tr>
               <th contenteditable="plaintext-only"></th>
               <td contenteditable="plaintext-only"></td>
               <td align="right"><div class="btn-group">

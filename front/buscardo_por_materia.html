@@ -76,18 +76,18 @@
       <h3>Buscar Materia</h3>
       <div class="mb-3">
 
-        <select id="selectMateria" class="selectpicker form-control" data-live-search="true" required>
+        <select id="select-materia" class="selectpicker form-control" data-live-search="true" required>
           <option value="" disabled selected>Elegí una materia</option>
         </select>
 
       </div>
-      <button id="btnBuscarMateria" class="btn btn-primary mb-4">Buscar</button>
+      <button id="btn-buscar-materia" class="btn btn-primary mb-4">Buscar</button>
       <!-- --------------------------------------------------------------------------------------------- -->
       <!-- Resultado -->
-      <div id="resultadoMateria" class="card d-none">
-        <div id="tablaAulasContainer" class="card-body">
+      <div id="resultado-materia" class="card d-none">
+        <div id="tabla-aulas-container" class="card-body">
           <div class="d-flex justify-content-between">
-            <h5 class="card-title" id="materiaTitulo"></h5>
+            <h5 class="card-title" id="materia-titulo"></h5>
           </div>
           <hr />
         </div>
@@ -97,8 +97,8 @@
     <!-- --------------------------------------------------------------------------------------------- -->
 
     <!-- Templates -->
-    <template id="templateTablaHorarios">
-      <div class="table-responsive" id="materiaAulas">
+    <template id="template-tabla-horarios">
+      <div class="table-responsive" id="materia-aulas">
         <h6>Aulas donde se dicta:</h6>
         <table id="calendario" class="table table-bordered text-center">
           <thead class="table-light">
@@ -179,17 +179,17 @@
       </div>
     </template>
 
-    <template id="templateBotonesAdmin">
+    <template id="template-botones-admin">
       <div class="btn-group">
-        <button class="btn btn-primary" data-toggle="modal" data-target="#modalCalendario">
+        <button class="btn btn-primary" data-toggle="modal" data-target="#modal-calendario">
           <i class="bi bi-pencil-square"></i>
         </button>
-        <button class="btn btn-danger" data-toggle="modal" data-target="#modalResetCalendario">
+        <button class="btn btn-danger" data-toggle="modal" data-target="#modal-reset-calendario">
           <i class="bi bi-x">Eliminar</i>
         </button>
       </div>
 
-      <div class="modal fade" id="modalResetCalendario" tabindex="-1" role="dialog" aria-labelledby="Confirmar Reiniciar Calendario" aria-hidden="true">
+      <div class="modal fade" id="modal-reset-calendario" tabindex="-1" role="dialog" aria-labelledby="Confirmar Reiniciar Calendario" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -208,24 +208,24 @@
         </div>
       </div>
 
-      <div class="modal fade" id="modalCalendario" tabindex="-1" role="dialog" aria-labelledby="Editor de Calendario" aria-hidden="true">
+      <div class="modal fade" id="modal-calendario" tabindex="-1" role="dialog" aria-labelledby="Editor de Calendario" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">Editar Cronograma de la Materia</h5>
             </div>
             <div class="modal-body">
-              <form id="editForm" class="needs-validation" novalidate>
+              <form id="edit-form" class="needs-validation" novalidate>
                 <div class="form-group mb-3">
-                  <label for="inputAula">Aula</label>
-                  <select id="inputAula" class="form-control" required>
+                  <label for="input-aula">Aula</label>
+                  <select id="input-aula" class="form-control" required>
                     <option value="" disabled selected>Elegí un aula</option>
                   </select>
                 </div>
                 <div class="row">
                   <div class="form-group col-md-4">
-                    <label for="inputDia">Día</label>
-                    <select id="inputDia" class="form-control" required>
+                    <label for="input-dia">Día</label>
+                    <select id="input-dia" class="form-control" required>
                       <option value="" disabled selected>Día</option>
                       <option>Lunes</option>
                       <option>Martes</option>
@@ -237,12 +237,12 @@
                     </select>
                   </div>
                   <div class="form-group col-md-4">
-                    <label for="inputInicio">Horario inicio</label>
-                    <input type="time" min="08:00" max="23:00" step="1800" id="inputInicio" class="form-control" required />
+                    <label for="input-inicio">Horario inicio</label>
+                    <input type="time" min="08:00" max="23:00" step="1800" id="input-inicio" class="form-control" required />
                   </div>
                   <div class="form-group col-md-4">
-                    <label for="inputFin">Horario fin</label>
-                    <input type="time" min="08:00" max="23:00" step="1800" id="inputFin" class="form-control" required />
+                    <label for="input-fin">Horario fin</label>
+                    <input type="time" min="08:00" max="23:00" step="1800" id="input-fin" class="form-control" required />
                   </div>
                 </div>
                 <br />
@@ -250,7 +250,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-              <button id="submitForm" class="btn btn-primary" data-dismiss="modal">Guardar cambios</button>
+              <button id="submit-form" class="btn btn-primary" data-dismiss="modal">Guardar cambios</button>
             </div>
           </div>
         </div>
