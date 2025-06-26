@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             });
 
             const userData = await response.json();
-            console.log("Usuario autenticado:", userData);
 
             // Podés guardar los datos o el token en localStorage si querés
             localStorage.setItem("authToken", token);
