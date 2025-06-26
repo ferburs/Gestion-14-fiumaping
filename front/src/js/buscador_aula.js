@@ -1,4 +1,4 @@
-import { getFullEndpoint } from './api.js';
+import { fetchAPI } from './api.js';
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 const HORAS = Array.from({ length: 15 }, (_, i) => `${String(i + 8).padStart(2, '0')}:00`);
@@ -52,7 +52,7 @@ function adminSaveAttribute(e, method) {
   botonEdit.children[0].className = "bi bi-pencil-square";
   botonEdit.setAttribute('onclick', 'adminEditRow(event)');
 
-  let promise = fetch(getFullEndpoint(`/api/v1/aulas/${req.codigo_aula}/atributos`), {
+  let promise = fetchAPI(`api/v1/aulas/${req.codigo_aula}/atributos`, {
     method: method,
     headers: {
       'Accept': 'application/json',
@@ -106,8 +106,8 @@ function adminRemoveRow(e, aulaSeleccionada) {
   const id = tableRowElem.getAttribute('id');
 
   if (id) {
-    fetch(getFullEndpoint(`/api/v1/aulas/${aulaSeleccionada}/atributos?`
-          + new URLSearchParams({ id: id })), {
+    fetchApi(`api/v1/aulas/${aulaSeleccionada}/atributos?`
+             + new URLSearchParams({ id: id }), {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
@@ -120,7 +120,7 @@ function adminRemoveRow(e, aulaSeleccionada) {
 }
 
 function adminRemoveCalendar(e, aulaSeleccionada) {
-  fetch(getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`), {
+  fetchAPI(`api/v1/materias/${aulaSeleccionada}/materias`, {
     method: 'DELETE',
     headers: {
       'Accept': 'application/json',
@@ -149,7 +149,7 @@ function adminSubmitForm(e, aulaSeleccionada) {
     hora_fin: form[3].value,
   };
 
-  fetch(getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`), {
+  fetchAPI(`api/v1/materias/${aulaSeleccionada}/materias`, {
     method: "POST",
     headers: {
       'Accept': 'application/json',
@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let datosAulas = {};
 
-  fetch(getFullEndpoint('/api/v1/aulas/'))
+  fetchAPI('api/v1/aulas/')
     .then(response => {
       if (!response.ok) throw new Error('Error al cargar las aulas');
       return response.json();
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    fetch(getFullEndpoint(`/api/v1/aulas/${aulaSeleccionada}/atributos`))
+    fetchAPI(`api/v1/aulas/${aulaSeleccionada}/atributos`)
       .then(response => {
         if (!response.ok) throw new Error('Error al cargar la información del aula');
         return response.json();
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function () {
           </div>
         `;
 
-        return fetch(getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`));
+        return fetchAPI(`api/v1/materias/${aulaSeleccionada}/materias`);
       })
       .then(response => {
         if (!response.ok) throw new Error('Error al cargar las materias del aula');
@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         if (isAdmin) {
-          fetch(getFullEndpoint('/api/v1/materias/'))
+          fetchAPI('api/v1/materias/')
             .then(response => {
               if (!response.ok) throw new Error('Error al cargar las materias');
               return response.json();

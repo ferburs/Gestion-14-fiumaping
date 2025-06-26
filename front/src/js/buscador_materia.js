@@ -1,8 +1,8 @@
-import { getFullEndpoint } from './api.js';
+import { fetchAPI } from './api.js';
 
 function adminRemoveCalendar(e) {
   const codigo = document.getElementById('selectMateria').value;
-  fetch(getFullEndpoint('/api/v1/materias/' + codigo), {
+  fetchAPI('api/v1/materias/' + codigo, {
     method: 'DELETE',
     headers: {
       'Accept': 'application/json',
@@ -35,7 +35,7 @@ function adminSubmitForm(e) {
   };
 
   const codigoMateria = document.getElementById('selectMateria').value;
-  fetch(getFullEndpoint(`/api/v1/materias/${codigoMateria}`), {
+  fetchAPI(`api/v1/materias/${codigoMateria}`, {
     method: "POST",
     headers: {
       'Accept': 'application/json',
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     inputInicio.addEventListener('change', updateMinHorarioFin);
 
     const selectAula = clone.querySelector('#inputAula');
-    fetch(getFullEndpoint('/api/v1/aulas/'))
+    fetchAPI('api/v1/aulas/')
       .then(response => {
         if (!response.ok) throw new Error('Error al cargar las materias');
         return response.json();
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let materiasData = {};
 
-  fetch(getFullEndpoint('/api/v1/materias/'))
+  fetchAPI('api/v1/materias/')
     .then(response => {
       if (!response.ok) throw new Error('Error al cargar las materias');
       return response.json();
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const materia = materiasData[codigo];
     materiaTitulo.textContent = `${materia.nombre} (${materia.codigo})`;
 
-    fetch(getFullEndpoint('/api/v1/materias/' + codigo))
+    fetchAPI('api/v1/materias/' + codigo)
       .then(response => {
         if (!response.ok) throw new Error('Error al cargar las materias');
         return response.json();

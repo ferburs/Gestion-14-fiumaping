@@ -1,4 +1,4 @@
-import { getFullEndpoint } from "../api";
+import { fetchAPI } from "../api";
 
 export function setupRoomInfoPanel(mapView, roomDetails) {
   const infoPanel = document.getElementById("room-info-panel");
@@ -45,7 +45,7 @@ export function setupRoomInfoPanel(mapView, roomDetails) {
       console.log("No es aula. Valor de numAula:", numAula);
     }
 
-    fetch(getFullEndpoint(`/api/v1/aulas/${numAula}/atributos`))
+    fetchAPI(`api/v1/aulas/${numAula}/atributos`)
         .then(response => {
           if (!response.ok) throw new Error('Error al cargar la información del aula');
           return response.json();

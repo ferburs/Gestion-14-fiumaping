@@ -1,4 +1,4 @@
-import { getFullEndpoint } from './api.js';
+import { fetchAPI, getFullEndpoint } from './api.js';
 
 document.addEventListener("DOMContentLoaded", async function () {
 
@@ -7,16 +7,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     if (token) {
         try {
-            const response = await fetch(getFullEndpoint("api/v1/auth/user-info"), {
-                method: "GET",
+            const response = await fetchAPI("api/v1/auth/user-info", {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
             });
-
-            if (!response.ok) {
-                throw new Error("Token inválido");
-            }
 
             const userData = await response.json();
             console.log("Usuario autenticado:", userData);
@@ -32,7 +27,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         } catch (error) {
             console.error("Error al autenticar:", error);
-            // Opcional: mostrar mensaje o redirigir al login
         }
     }
 
