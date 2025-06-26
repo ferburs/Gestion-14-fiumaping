@@ -3,9 +3,9 @@ import { fetchAPI, getFullEndpoint } from './api.js';
 document.addEventListener("DOMContentLoaded", async function () {
 
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
 
-    if (token) {
+    if (urlParams.has("token")) {
+        const token = urlParams.get("token");
         try {
             const response = await fetchAPI("api/v1/auth/user-info", {
                 headers: {
