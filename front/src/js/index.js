@@ -38,5 +38,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         const alertElem = document.getElementById("alert-error");
         alertElem.innerText = urlParams.get("error");
         alertElem.classList.remove('d-none');
+        window.history.replaceState(null, "", "?");
     }
 });
