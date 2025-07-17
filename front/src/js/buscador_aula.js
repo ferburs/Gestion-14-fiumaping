@@ -350,4 +350,18 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
   });
 
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('codigo')) {
+    const codigo = urlParams.get('codigo');
+    for (let i = 0; i < selectAula.options.length; i++) {
+      if (codigo === selectAula.options[i].value) {
+        selectAula.selectedIndex = i;
+      }
+    }
+    btnBuscar.dispatchEvent(new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    }));
+  }
 });
