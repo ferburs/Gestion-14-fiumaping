@@ -85,5 +85,6 @@ export function setupRoomInfoPanel(mapView, roomDetails) {
 
   closePanelButton.addEventListener("click", () => {
     infoPanel.style.display = 'none';
+    infoDescription.innerHTML = '';
   });
 }
