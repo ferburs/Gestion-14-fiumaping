@@ -12,7 +12,7 @@ export default defineConfig({
         index: resolve(__dirname, 'index.html'),
         mapa: resolve(__dirname, 'mapa.html'),
         buscador_por_aula: resolve(__dirname, 'buscador_por_aula.html'),
-        buscardo_por_materia: resolve(__dirname, 'buscardo_por_materia.html'),
+        buscador_por_materia: resolve(__dirname, 'buscador_por_materia.html'),
       }
     }
   }
