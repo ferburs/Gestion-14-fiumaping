@@ -1,4 +1,4 @@
-import { getFullEndpoint } from "../api";
+import { fetchAPI } from "../api";
 
 export function setupRoomInfoPanel(mapView, roomDetails) {
   const infoPanel = document.getElementById("room-info-panel");
@@ -34,18 +34,18 @@ export function setupRoomInfoPanel(mapView, roomDetails) {
     
 
 
-    const cleanName = clickedSpace.name.trim().toLowerCase();
+    const cleanName = clickedSpace.name.trim();
     //Me quedo solo con el numero de aula. Aula 403 -> 403. Aula 403b -> 403b. Baño piso 3 -> null
-    const match = cleanName.match(/^aula\s+(\d+[a-z]?)$/i);
+    const match = cleanName.match(/^aula\s+(\w.*)$/i);
     let numAula = match ? match[1] : null;
     console.log("Nombre limpio:", cleanName);
-    console.log("Número de aula:", numAula);
     if (numAula === null) {
-      numAula = clickedSpace.name
-      console.log("No es aula. Valor de numAula:", numAula);
+      console.log("No es aula.");
+      return;
     }
 
-    fetch(getFullEndpoint(`/api/v1/aulas/${numAula}/atributos`))
+    console.log("Número de aula:", numAula);
+    fetchAPI(`api/v1/aulas/${numAula}/atributos`)
         .then(response => {
           if (!response.ok) throw new Error('Error al cargar la información del aula');
           return response.json();
@@ -53,15 +53,26 @@ export function setupRoomInfoPanel(mapView, roomDetails) {
         .then(atributosArray => {
           console.log("Atributos del aula:", atributosArray);
 
-          const pizarron = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'tipo pizarron')?.valor || 'Desconocido';
-          const banco = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'tipo banco')?.valor || 'Desconocido';
-          const enchufes = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'cantidad enchufes')?.valor || 'Desconocido';
+          let pizarron = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'tipo pizarron')?.valor;
+          let banco = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'tipo banco')?.valor;
+          let enchufes = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'cantidad enchufes')?.valor;
+
+          if (pizarron) {
+            pizarron = `<div><i class="fas fa-chalkboard"></i> ${pizarron}</div>`;
+          }
+          if (banco) {
+            banco = `<div><i class="fas fa-chair"></i> ${banco}</div>`;
+          }
+          if (enchufes) {
+            enchufes = `<div><i class="fas fa-plug"></i> ${enchufes} enchufe${enchufes > 1 ? "s" : ""}</div>`;
+          }
 
           infoDescription.innerHTML = `
             <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
-              <div><i class="fas fa-chalkboard"></i> ${pizarron}</div>
-              <div><i class="fas fa-chair"></i> ${banco}</div>
-              <div><i class="fas fa-plug"></i> ${enchufes} enchufes</div>
+              ${pizarron || ""}
+              ${banco || ""}
+              ${enchufes || ""}
+              <div><a href="/buscador_por_aula.html?codigo=${numAula}"><i class="fas fa-circle-info"></i> Ver información del aula</a></div>
             </div>
           `;
         })
@@ -74,5 +85,6 @@ export function setupRoomInfoPanel(mapView, roomDetails) {
 
   closePanelButton.addEventListener("click", () => {
     infoPanel.style.display = 'none';
+    infoDescription.innerHTML = '';
   });
 }

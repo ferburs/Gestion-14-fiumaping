@@ -1,58 +1,34 @@
-import { getFullEndpoint } from './api.js';
-
-const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-const HORAS = Array.from({ length: 15 }, (_, i) => `${String(i + 8).padStart(2, '0')}:00`);
-
-const htmlClearCalendarTable = `
-  <table id="calendario" class="table table-bordered text-center">
-    <thead class="table-light">
-      <tr>
-        <th>Hora</th>
-        ${DIAS.map(dia => `<th>${dia}</th>`).join('')}
-      </tr>
-    </thead>
-    <tbody>
-      ${HORAS.map(hora => `
-        <tr>
-          <th scope="row">${hora}</th>
-          ${DIAS.map(() => `<td></td>`).join('')}
-        </tr>
-      `).join('')}
-    </tbody>
-  </table>`;
+import { fetchAPI } from './api.js';
 
 let toDeleteTableRow = null;
 function adminSetToDeleteTableRow(e) {
   toDeleteTableRow = e.target.closest('tr');
 }
 
-function adminSaveAttribute(e, method) {
+async function adminSaveAttribute(e) {
   let botonEdit = e.target.closest('button');
   let tableRowElem = botonEdit.closest('tr');
   let tableHeadElem = tableRowElem.children[0];
   let tableDataElem = tableRowElem.children[1];
   let req = {};
 
-  if (method === "PUT") {
+  if (tableRowElem.hasAttribute('id')) {
+    var method = 'PUT';
     req.id = +tableRowElem.getAttribute('id');
+  } else {
+    var method = 'POST';
   }
 
   req.nombre_atributo = tableRowElem.querySelector('th').innerText;
   req.valor = tableRowElem.querySelector('td').innerText;
-  req.codigo_aula = tableRowElem.closest('div').children[0].innerText.split(' ')[1];
+  req.codigo_aula = document.getElementById('select-aula').value;
 
   if (!req.nombre_atributo || !req.valor) {
     alert('Falta especificar el atributo');
     return;
   }
 
-  tableHeadElem.setAttribute('contenteditable', 'false');
-  tableDataElem.setAttribute('contenteditable', 'false');
-
-  botonEdit.children[0].className = "bi bi-pencil-square";
-  botonEdit.setAttribute('onclick', 'adminEditRow(event)');
-
-  let promise = fetch(getFullEndpoint(`/api/v1/aulas/${req.codigo_aula}/atributos`), {
+  await fetchAPI(`api/v1/aulas/${req.codigo_aula}/atributos`, {
     method: method,
     headers: {
       'Accept': 'application/json',
@@ -60,16 +36,21 @@ function adminSaveAttribute(e, method) {
       'Authorization': `Bearer ${localStorage.getItem("authToken")}`
     },
     body: JSON.stringify(req)
-  })
-
-  if (method === "POST") {
-    promise.then(res => {
-      if (!res.ok) throw new Error('Error al agregar atributos al aula');
+  }).then(res => {
+    if (!res.ok) throw new Error('Error al guardar atributo');
+    if (method === "POST") {
       return res.json();
-    }).then(res => {
-      tableRowElem.setAttribute('id', res.id);
-    });
-  }
+    }
+  }).then(res => {
+    tableRowElem.id ||= res.id;
+  });
+
+  tableHeadElem.setAttribute('contenteditable', 'false');
+  tableDataElem.setAttribute('contenteditable', 'false');
+
+  botonEdit.children[0].className = "bi bi-pencil-square";
+  botonEdit.removeEventListener('click', adminSaveAttribute);
+  botonEdit.addEventListener('click', adminEditRow);
 }
 
 function adminEditRow(e) {
@@ -82,7 +63,8 @@ function adminEditRow(e) {
   tableDataElem.addEventListener('keydown', adminEditRowReset);
 
   botonEdit.children[0].className = "bi bi-check-lg";
-  botonEdit.setAttribute('onclick', 'adminSaveAttribute(event, "PUT")');
+  botonEdit.removeEventListener('click', adminEditRow);
+  botonEdit.addEventListener('click', adminSaveAttribute);
 }
 
 function adminEditRowReset(e) {
@@ -101,13 +83,14 @@ function adminEditRowReset(e) {
   botonEdit.setAttribute('onclick', 'adminEditRow(event)');
 }
 
-function adminRemoveRow(e, aulaSeleccionada) {
-  let tableRowElem = e.target.closest('tr') ?? toDeleteTableRow;
+async function adminRemoveRow(e) {
+  const codigo = document.getElementById('select-aula').value;
+  const tableRowElem = e.target.closest('tr') ?? toDeleteTableRow;
   const id = tableRowElem.getAttribute('id');
 
   if (id) {
-    fetch(getFullEndpoint(`/api/v1/aulas/${aulaSeleccionada}/atributos?`
-          + new URLSearchParams({ id: id })), {
+    await fetchAPI(`api/v1/aulas/${codigo}/atributos?`
+             + new URLSearchParams({ id: id }), {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
@@ -119,19 +102,25 @@ function adminRemoveRow(e, aulaSeleccionada) {
   tableRowElem.remove();
 }
 
-function adminRemoveCalendar(e, aulaSeleccionada) {
-  fetch(getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`), {
+async function adminRemoveCalendar(e) {
+  const codigo = document.getElementById('select-aula').value;
+  await fetchAPI(`api/v1/materias/${codigo}/materias`, {
     method: 'DELETE',
     headers: {
       'Accept': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem("authToken")}`
     },
   });
-  document.querySelector('#calendarContainer').innerHTML = htmlClearCalendarTable;
+
+  const oldTabla = document.getElementById('calendario');
+  const templateTablaHorarios = document.getElementById('template-tabla-horarios');
+  const clone = templateTablaHorarios.content.cloneNode(true);
+  document.getElementById('calendar-container').replaceChild(clone, oldTabla);
 }
 
-function adminSubmitForm(e, aulaSeleccionada) {
-  let form = document.querySelector('#editForm');
+async function adminSubmitForm(e) {
+  const codigo = document.getElementById('select-aula').value;
+  let form = document.getElementById('edit-form');
   const isValid = form.checkValidity();
 
   form.classList.add('was-validated');
@@ -149,7 +138,7 @@ function adminSubmitForm(e, aulaSeleccionada) {
     hora_fin: form[3].value,
   };
 
-  fetch(getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`), {
+  await fetchAPI(`api/v1/materias/${codigo}/materias`, {
     method: "POST",
     headers: {
       'Accept': 'application/json',
@@ -163,21 +152,19 @@ function adminSubmitForm(e, aulaSeleccionada) {
       }
   });
 
-  const tabla = document.querySelector('#calendario');
-  const diaIndex = DIAS.findIndex(d => d.toLowerCase() === req.dia_semana.toLowerCase());
-  const horaInicio = parseInt(req.hora_inicio.split(':')[0], 10);
-  const horaFin = parseInt(req.hora_fin.split(':')[0], 10);
+  const tabla = document.getElementById('calendario');
+  const diaIndex = form[1].selectedIndex - 1;
+  const horaInicio = parseInt(req.hora_inicio);
+  const horaFin = parseInt(req.hora_fin);
   const nombre_materia = form[0].options[form[0].selectedIndex].getAttribute('data-nombre-materia');
 
   for (let h = horaInicio; h < horaFin; h++) {
     const rowIndex = h - 8; // Ajuste desde las 08:00
-    if (rowIndex >= 0 && rowIndex < HORAS.length) {
-      const fila = tabla.rows[rowIndex + 1]; // +1 porque la fila 0 es el encabezado
-      const celda = fila.cells[diaIndex + 1]; // +1 porque la columna 0 es la hora
-      celda.style.backgroundColor = '#2196F3';
-      celda.style.color = 'white';
-      celda.textContent = nombre_materia;
-    }
+    const fila = tabla.rows[rowIndex + 1]; // +1 porque la fila 0 es el encabezado
+    const celda = fila.cells[diaIndex + 1]; // +1 porque la columna 0 es la hora
+    celda.style.backgroundColor = '#2196F3';
+    celda.style.color = 'white';
+    celda.textContent = nombre_materia;
   }
 
   form.reset();
@@ -185,19 +172,23 @@ function adminSubmitForm(e, aulaSeleccionada) {
 }
 
 function updateMinHorarioFin(e) {
-  document.querySelector('#inputFin')
+  document.getElementById('input-fin')
     .setAttribute('min', e.target.value < '08:00' ? '08:00' : e.target.value);
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  const selectAula = document.getElementById('selectAula');
-  const btnBuscar = document.getElementById('btnBuscar');
-  const resultado = document.getElementById('resultadoAula');
+document.addEventListener('DOMContentLoaded', async function () {
   const isAdmin = localStorage.getItem('userRole') == 'ADMIN';
+  const selectAula = document.getElementById('select-aula');
+  const btnBuscar = document.getElementById('btn-buscar');
+  const resultado = document.getElementById('resultado-aula');
+  const calendarContainer = document.getElementById('calendar-container');
+  const tablaAtributos = document.getElementById('atributos-aula');
+  const templateTablaHorarios = document.getElementById('template-tabla-horarios');
+  const templateAtributo = document.getElementById('template-atributo');
+  const templateNuevoAttr = document.getElementById('template-nuevo-atributo');
+  const templateBtnAttr = document.getElementById('template-btn-attr-admin');
 
-  let datosAulas = {};
-
-  fetch(getFullEndpoint('/api/v1/aulas/'))
+  await fetchAPI('api/v1/aulas/')
     .then(response => {
       if (!response.ok) throw new Error('Error al cargar las aulas');
       return response.json();
@@ -205,9 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(aulas => {
       for (const aula of aulas) {
         const option = document.createElement('option');
-        option.value = aula.codigo;
         option.textContent = aula.codigo;
-        datosAulas[aula.codigo] = aula;
         selectAula.appendChild(option);
       }
 
@@ -219,234 +208,160 @@ document.addEventListener('DOMContentLoaded', function () {
       resultado.classList.remove('d-none');
     });
 
-  btnBuscar.addEventListener('click', () => {
+  if (isAdmin) {
+    document
+      .querySelector('#modal-delete .btn-primary')
+      .addEventListener('click', adminRemoveRow);
+
+    const templateBtnAdmin = document.getElementById('template-btn-admin');
+    const clone = templateBtnAdmin.content.cloneNode(true);
+
+    const btnEliminar =
+      clone.querySelector('#modal-reset-calendario .btn-primary');
+    btnEliminar.addEventListener('click', adminRemoveCalendar);
+
+    const btnSubmit = clone.querySelector('#submit-form');
+    btnSubmit.addEventListener('click', adminSubmitForm);
+
+    const inputInicio = clone.querySelector('#input-inicio');
+    inputInicio.addEventListener('change', updateMinHorarioFin);
+    document.getElementById('calendario-header').appendChild(clone);
+
+    const templateAgregar = document.getElementById('template-agregar-atributo');
+    const filaAgregar = templateAgregar.content.cloneNode(true);
+
+    filaAgregar.querySelector('.btn-primary').addEventListener('click', e => {
+      const clone = templateNuevoAttr.content.cloneNode(true);
+
+      const btnSave = clone.querySelector('.btn-primary');
+      btnSave.addEventListener('click', adminSaveAttribute);
+
+      const btnRemove = clone.querySelector('.btn-danger');
+      btnRemove.addEventListener('click', adminRemoveRow);
+
+      e.target.closest('tr').before(clone);
+    });
+    tablaAtributos.insertRow().appendChild(filaAgregar);
+
+    await fetchAPI('api/v1/materias/')
+      .then(response => {
+        if (!response.ok) throw new Error('Error al cargar las materias');
+        return response.json();
+      })
+      .then(materias => {
+        let selectMateria = resultado.querySelector('form')[0];
+        for (const materia of materias) {
+          const option = document.createElement('option');
+          option.value = materia.codigo;
+          option.setAttribute('data-nombre-materia', materia.nombre);
+          option.textContent = `${materia.nombre} (${materia.codigo})`;
+          selectMateria.appendChild(option);
+        }
+      })
+  }
+
+  btnBuscar.addEventListener('click', async function() {
     const aulaSeleccionada = selectAula.value;
-    let html = '';
 
     if (!aulaSeleccionada) {
       return;
     }
 
-    fetch(getFullEndpoint(`/api/v1/aulas/${aulaSeleccionada}/atributos`))
-      .then(response => {
-        if (!response.ok) throw new Error('Error al cargar la información del aula');
-        return response.json();
-      })
-      .then(atributosArray => {
-        html += `
-          <div class="card mb-3">
-            <div class="card-body">
-              <h5 class="card-title">Aula ${aulaSeleccionada}</h5>
-              <hr />
-              <table id="atributosAula" class="table table-striped">
-                <tbody>
-                  ${atributosArray.map((attr) => `
-                  <tr id=${attr.id}>
-                    <th scope="row">${attr.nombre_atributo}</th>
-                    <td>${attr.valor}</td>
-                    ${isAdmin ? `
-                    <td align="right"><div class="btn-group">
-                      <button class="btn btn-primary" onclick="adminEditRow(event)">
-                        <i class="bi bi-pencil-square"></i>
-                      </button>
-                      <button class="btn btn-danger" data-toggle="modal" data-target="#modalDelete" onclick="adminSetToDeleteTableRow(event)">
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </div></td>` : ''}
-                  </tr>
-                  `).join('')}
-                  ${isAdmin ? `
-                  <tr><td><button id="agregarAtributo" class="btn btn-primary">
-                    <i class="bi bi-plus-lg"></i>
-                  </button></td></tr>
-                  <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="Confirmar borrar atributo" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title">Eliminar Atributo</h5>
-                        </div>
-                        <div class="modal-body">
-                          <p>Seguro que desea eliminar este atributo?</p>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                          <button id="submitForm" class="btn btn-primary" data-dismiss="modal" onclick="adminRemoveRow(event, ${aulaSeleccionada})">Eliminar</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  ` : ""}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
+    window.history.replaceState(null, "", `?codigo=${aulaSeleccionada}`);
+    document.getElementById('aula-titulo').innerText = `Aula ${aulaSeleccionada}`;
 
-        return fetch(getFullEndpoint(`/api/v1/materias/${aulaSeleccionada}/materias`));
-      })
-      .then(response => {
-        if (!response.ok) throw new Error('Error al cargar las materias del aula');
-        return response.json();
-      })
-      .then(materias => {
-        html += `
-          <div class="card mb-3">
-            <div class="card-body">
-              <div class="d-flex p-2 justify-content-between align-items-center">
-                <h5 class="card-title">Calendario de uso del aula</h5>
-                ${isAdmin ? `
-                <div class="btn-group">
-                  <button class="btn btn-primary" data-toggle="modal" data-target="#modalCalendario">
-                    <i class="bi bi-pencil-square"></i>
-                  </button>
-                  <button class="btn btn-danger" data-toggle="modal" data-target="#modalResetCalendario">
-                    <i class="bi bi-x">Eliminar</i>
-                  </button>
-                </div>
-                <div class="modal fade" id="modalResetCalendario" tabindex="-1" role="dialog" aria-labelledby="Confirmar Reiniciar Calendario" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">Reiniciar Calendario</h5>
-                      </div>
-                      <div class="modal-body">
-                        <div class="alert alert-danger" role="alert">
-                          Se borrara el cronograma para esta aula.
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                        <button id="submitForm" class="btn btn-primary" data-dismiss="modal" onclick="adminRemoveCalendar(event, ${aulaSeleccionada})">Borrar</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal fade" id="modalCalendario" tabindex="-1" role="dialog" aria-labelledby="Editor de Calendario" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">Editar Calendario del Aula</h5>
-                      </div>
-                      <div class="modal-body">
-                        <form id="editForm" class="needs-validation" novalidate>
-                          <div class="form-group mb-3">
-                            <label for="inputMateria">Materia</label>
-                            <select id="inputMateria" class="form-control" required>
-                              <option value="" disabled selected>Elegí una materia</option>
-                            </select>
-                          </div>
-                          <div class="row">
-                            <div class="form-group col-md-4">
-                              <label for="inputDia">Día</label>
-                              <select id="inputDia" class="form-control" required>
-                                <option value="" disabled selected>Día</option>
-                                ${DIAS.map(dia =>
-                                  `<option>${dia}</option>`
-                                ).join('')}
-                              </select>
-                            </div>
-                            <div class="form-group col-md-4">
-                              <label for="inputInicio">Horario inicio</label>
-                              <input type="time" min="08:00" max="23:00" step="1800" id="inputInicio" onchange="updateMinHorarioFin(event)" class="form-control" required />
-                            </div>
-                            <div class="form-group col-md-4">
-                              <label for="inputFin">Horario fin</label>
-                              <input type="time" min="08:00" max="23:00" step="1800" id="inputFin" class="form-control" required />
-                            </div>
-                          </div>
-                          <br />
-                        </form>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                        <button id="submitForm" class="btn btn-primary" data-dismiss="modal" onclick="adminSubmitForm(event, ${aulaSeleccionada})">Guardar cambios</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>` : ""}
-              </div>
-              <div id="calendarContainer" class="table-responsive">
-                ${htmlClearCalendarTable}
-              </div>
-            </div>
-          </div>
-        `;
+    await Promise.all([
+      fetchAPI(`api/v1/aulas/${aulaSeleccionada}/atributos`)
+        .then(response => {
+          if (!response.ok) throw new Error('Error al cargar la información del aula');
+          return response.json();
+        }).then(atributosArray => {
+          for (let i = tablaAtributos.rows.length; i > isAdmin; i--) {
+            tablaAtributos.deleteRow(0);
+          }
 
-        resultado.innerHTML = html;
-        resultado.classList.remove('d-none');
+          for (const attr of atributosArray.reverse()) {
+            const row = tablaAtributos.insertRow(0);
+            const clone = templateAtributo.content.cloneNode(true);
+            // TODO: if isAdmin clear all but , otherwise clear all
+            row.id = attr.id;
+            clone.querySelector('th').innerText = attr.nombre_atributo;
+            clone.querySelector('td').innerText = attr.valor;
+            row.appendChild(clone);
 
-        if (isAdmin) {
-          resultado.querySelector('#agregarAtributo').addEventListener('click', e => {
-            $('#atributosAula tr:last').before(`<tr>
-              <th contenteditable="plaintext-only"></th>
-              <td contenteditable="plaintext-only"></td>
-              <td align="right"><div class="btn-group">
-                <button class="btn btn-primary" onclick="adminSaveAttribute(event, 'POST')">
-                  <i class="bi bi-check-lg"></i>
-                </button>
-                <button class="btn btn-danger" onclick="adminRemoveRow(event)">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </div></td>
-              </tr>`);
-          });
-        }
+            if (isAdmin) {
+              const btnAdmin = templateBtnAttr.content.cloneNode(true);
+              btnAdmin
+                .querySelector('.btn-primary')
+                .addEventListener('click', adminEditRow);
+              btnAdmin
+                .querySelector('.btn-danger')
+                .addEventListener('click', adminSetToDeleteTableRow);
+              row.appendChild(btnAdmin);
+            }
+          }
+        }),
+      fetchAPI(`api/v1/materias/${aulaSeleccionada}/materias`)
+        .then(response => {
+          if (!response.ok) throw new Error('Error al cargar las materias del aula');
+          return response.json();
+        }).then(materias => {
+          // Llenar las celdas en rojo
+          const clone = templateTablaHorarios.content.cloneNode(true);
+          const td = clone.querySelectorAll('td');
+          const th = clone.querySelectorAll('th');
+          const DIAS = [];
 
-        // Llenar las celdas en rojo
-        const tabla = resultado.querySelector('#calendario');
-        materias.forEach(materia => {
-          const diaIndex = DIAS.findIndex(d => d.toLowerCase() === materia.dia_semana.toLowerCase());
-          const horaInicio = parseInt(materia.hora_inicio.split(':')[0], 10);
-          const horaFin = parseInt(materia.hora_fin.split(':')[0], 10);
+          for (let i = 1; i <= 7; i++) {
+            DIAS.push(th[i].innerText.toLowerCase());
+          }
 
-          for (let h = horaInicio; h < horaFin; h++) {
-            const rowIndex = h - 8; // Ajuste desde las 08:00
-            if (rowIndex >= 0 && rowIndex < HORAS.length) {
-              const fila = tabla.rows[rowIndex + 1]; // +1 porque la fila 0 es el encabezado
-              const celda = fila.cells[diaIndex + 1]; // +1 porque la columna 0 es la hora
+          for (const materia of materias) {
+            const col = DIAS.indexOf(materia.dia_semana.toLowerCase());
+            const hora_i = parseInt(materia.hora_inicio) - 8;
+            const hora_f = parseInt(materia.hora_fin) - 8;
+            for (let i = hora_i; i < hora_f; i++) {
+              const celda = td[i * 7 + col];
               celda.style.backgroundColor = '#2196F3';
               celda.style.color = 'white';
               celda.textContent = materia.nombre_materia;
             }
           }
-        });
 
-        if (isAdmin) {
-          fetch(getFullEndpoint('/api/v1/materias/'))
-            .then(response => {
-              if (!response.ok) throw new Error('Error al cargar las materias');
-              return response.json();
-            })
-            .then(materias => {
-              let selectMateria = resultado.querySelector('form')[0];
-              for (const materia of materias) {
-                const option = document.createElement('option');
-                option.value = materia.codigo;
-                option.setAttribute('data-nombre-materia', materia.nombre);
-                option.textContent = `${materia.nombre} (${materia.codigo})`;
-                selectMateria.appendChild(option);
-              }
-            })
-        }
-      })
-      .catch(error => {
-        console.error('Error al buscar información:', error);
-        resultado.innerHTML = `
-          <div class="card">
-            <div class="card-body">
-              <p class="text-danger">Error al cargar los datos del aula.</p>
-            </div>
+          const oldTabla = document.getElementById('calendario');
+          if (oldTabla !== null) {
+            calendarContainer.replaceChild(clone, oldTabla);
+          } else {
+            calendarContainer.appendChild(clone);
+          }
+
+          resultado.classList.remove('d-none');
+        })
+    ]).catch(error => {
+      console.error('Error al buscar información:', error);
+      resultado.innerHTML = `
+        <div class="card">
+          <div class="card-body">
+            <p class="text-danger">Error al cargar los datos del aula.</p>
           </div>
-        `;
-        resultado.classList.remove('d-none');
-      });
+        </div>
+      `;
+      resultado.classList.remove('d-none');
+    });
   });
-});
 
-window.adminSetToDeleteTableRow = adminSetToDeleteTableRow;
-window.adminSaveAttribute       = adminSaveAttribute;
-window.adminEditRow             = adminEditRow;
-window.adminRemoveRow           = adminRemoveRow;
-window.adminRemoveCalendar      = adminRemoveCalendar;
-window.adminSubmitForm          = adminSubmitForm;
-window.updateMinHorarioFin      = updateMinHorarioFin;
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('codigo')) {
+    const codigo = urlParams.get('codigo');
+    for (let i = 0; i < selectAula.options.length; i++) {
+      if (codigo === selectAula.options[i].value) {
+        selectAula.selectedIndex = i;
+      }
+    }
+    btnBuscar.dispatchEvent(new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    }));
+  }
+});

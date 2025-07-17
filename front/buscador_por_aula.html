@@ -47,7 +47,7 @@
                         <a class="nav-link  " href="buscador_por_aula.html">Buscar por número de aula</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="buscardo_por_materia.html">Buscar por materia</a>
+                        <a class="nav-link" href="buscador_por_materia.html">Buscar por materia</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link  " aria-current="page" href="mapa.html">Mapa</a>
@@ -77,23 +77,247 @@
       <h3>Buscar Aula</h3>
       <div class="mb-3">
 
-        <select id="selectAula" class="selectpicker form-control" data-live-search="true" required>
+        <select id="select-aula" class="selectpicker form-control" data-live-search="true" required>
           <option value="" disabled selected>Elegí un Aula</option>
         </select>
+
       </div>
-      <button id="btnBuscar" class="btn btn-primary mb-4">Buscar</button>
+      <button id="btn-buscar" class="btn btn-primary mb-4">Buscar</button>
       <!-- --------------------------------------------------------------------------------------------- -->
       <!-- Resultado -->
-      <div id="resultadoAula" class="card d-none">
-        <div class="card-body">
-          <h5 class="card-title" id="aulaTitulo"></h5>
-          <p class="card-text" id="aulaDescripcion"></p>
+      <div id="resultado-aula" class="card d-none">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 id="aula-titulo" class="card-title"></h5>
+            <hr />
+            <table id="atributos-aula" class="table table-striped">
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-body">
+            <div id="calendario-header" class="d-flex p-2 justify-content-between align-items-center">
+              <h5 class="card-title">Calendario de uso del aula</h5>
+            </div>
+            <div id="calendar-container" class="table-responsive">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade" id="modal-delete" tabindex="-1" role="dialog" aria-labelledby="Confirmar borrar atributo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Eliminar Atributo</h5>
+            </div>
+            <div class="modal-body">
+              <p>Seguro que desea eliminar este atributo?</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+              <button class="btn btn-primary" data-dismiss="modal">Eliminar</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
     <!-- --------------------------------------------------------------------------------------------- -->
 
+    <!-- Templates -->
+    <template id="template-tabla-horarios">
+      <table id="calendario" class="table table-bordered text-center">
+        <thead class="table-light">
+          <tr>
+            <th>Hora</th>
+            <th>Lunes</th>
+            <th>Martes</th>
+            <th>Miércoles</th>
+            <th>Jueves</th>
+            <th>Viernes</th>
+            <th>Sábado</th>
+            <th>Domingo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">08:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">09:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">10:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">11:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">12:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">13:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">14:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">15:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">16:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">17:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">18:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">19:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">20:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">21:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">22:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+        </tbody>
+      </table>
+    </template>
 
+    <template id="template-btn-admin">
+      <div class="btn-group">
+        <button class="btn btn-primary" data-toggle="modal" data-target="#modal-calendario">
+          <i class="bi bi-pencil-square"></i>
+        </button>
+        <button class="btn btn-danger" data-toggle="modal" data-target="#modal-reset-calendario">
+          <i class="bi bi-x">Eliminar</i>
+        </button>
+      </div>
+      <div class="modal fade" id="modal-reset-calendario" tabindex="-1" role="dialog" aria-labelledby="Confirmar Reiniciar Calendario" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Reiniciar Calendario</h5>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-danger" role="alert">
+                Se borrara el cronograma para esta aula.
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+              <button class="btn btn-primary" data-dismiss="modal">Borrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade" id="modal-calendario" tabindex="-1" role="dialog" aria-labelledby="Editor de Calendario" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Editar Calendario del Aula</h5>
+            </div>
+            <div class="modal-body">
+              <form id="edit-form" class="needs-validation" novalidate>
+                <div class="form-group mb-3">
+                  <label for="input-materia">Materia</label>
+                  <select id="input-materia" class="form-control" required>
+                    <option value="" disabled selected>Elegí una materia</option>
+                  </select>
+                </div>
+                <div class="row">
+                  <div class="form-group col-md-4">
+                    <label for="input-dia">Día</label>
+                    <select id="input-dia" class="form-control" required>
+                      <option value="" disabled selected>Día</option>
+                      <option>Lunes</option>
+                      <option>Martes</option>
+                      <option>Miércoles</option>
+                      <option>Jueves</option>
+                      <option>Viernes</option>
+                      <option>Sábado</option>
+                      <option>Domingo</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="input-inicio">Horario inicio</label>
+                    <input type="time" min="08:00" max="23:00" step="1800" id="input-inicio" class="form-control" required />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="input-fin">Horario fin</label>
+                    <input type="time" min="08:00" max="23:00" step="1800" id="input-fin" class="form-control" required />
+                  </div>
+                </div>
+                <br />
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+              <button id="submit-form" class="btn btn-primary" data-dismiss="modal">Guardar cambios</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template id="template-atributo">
+      <th scope="row">ATRIBUTO</th>
+      <td>VALOR</td>
+    </template>
+
+    <template id="template-btn-attr-admin">
+      <td align="right"><div class="btn-group">
+        <button class="btn btn-primary">
+          <i class="bi bi-pencil-square"></i>
+        </button>
+        <button class="btn btn-danger" data-toggle="modal" data-target="#modal-delete">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div></td>
+    </template>
+
+    <template id="template-nuevo-atributo">
+      <tr>
+        <th contenteditable="plaintext-only"></th>
+        <td contenteditable="plaintext-only"></td>
+        <td align="right"><div class="btn-group">
+          <button class="btn btn-primary">
+            <i class="bi bi-check-lg"></i>
+          </button>
+          <button class="btn btn-danger">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div></td>
+      </tr>
+    </template>
+
+    <template id="template-agregar-atributo">
+      <td><button id="agregar-atributo" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i>
+      </button></td>
+    </template>
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

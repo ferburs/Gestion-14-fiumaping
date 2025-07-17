@@ -11,8 +11,6 @@ class Aula(DATABASE.Model):
 
     id = DATABASE.Column(DATABASE.Integer, primary_key=True)
     codigo = DATABASE.Column(DATABASE.String(50), unique=True, nullable=False)
-    tipo_banco = DATABASE.Column(DATABASE.String(50), nullable=False)
-    tipo_pizarron = DATABASE.Column(DATABASE.String(50), nullable=False)
     posicion_x = DATABASE.Column(DATABASE.Float, nullable=True)
     posicion_y = DATABASE.Column(DATABASE.Float, nullable=True)
 
@@ -22,8 +20,6 @@ class Aula(DATABASE.Model):
         return {
             "id": self.id,
             "codigo": self.codigo,
-            "tipo_pizarron": self.tipo_pizarron,
-            "tipo_banco": self.tipo_banco,
             "posicion_x": self.posicion_x,
             "posicion_y": self.posicion_y
             #"atributos": [atributo.to_dict() for atributo in self.atributos]

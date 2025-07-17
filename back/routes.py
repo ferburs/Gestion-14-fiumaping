@@ -283,16 +283,19 @@ def google_callback():
     resp = google.get(userinfo_endpoint)
     user_info = resp.json()
 
-    # Asignamos el rol según el email
-    email = user_info['email']
-    role = "ADMIN" if email in Config.ADMIN_EMAIL_WHITELIST else "USER"
-
     payload = {
         "email": user_info['email'],
         "name": user_info['name'],
-        "role": role,
-        "exp": int(time.time()) + 3600
     }
+
+    # Asignamos el rol según el email
+    email = user_info['email']
+    if email in Config.ADMIN_EMAIL_WHITELIST:
+        payload["role"] = "ADMIN"
+        # Solo expira si es admin
+        payload["exp"] = int(time.time()) + 3600
+    else:
+        payload["role"] = "USER"
 
     jwt_token = jwt.encode(payload, Config.JWT_SECRET, algorithm="HS256")
     if isinstance(jwt_token, bytes):
