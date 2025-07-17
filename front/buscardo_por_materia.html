@@ -69,6 +69,7 @@
             </div>
         </div>
     </nav>
+
     <!-- --------------------------------------------------------------------------------------------- -->
 
     <!-- Buscador -->
@@ -86,10 +87,13 @@
       <!-- Resultado -->
       <div id="resultado-materia" class="card d-none">
         <div id="tabla-aulas-container" class="card-body">
-          <div class="d-flex justify-content-between">
-            <h5 class="card-title" id="materia-titulo"></h5>
-          </div>
+          <h5 class="card-title" id="materia-titulo"></h5>
           <hr />
+          <div class="table-responsive" id="materia-aulas">
+            <div id="calendario-header" class="d-flex mb-3 justify-content-between align-content-end">
+              <h6 class="align-content-end">Calendario de la Materia</h6>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -98,85 +102,82 @@
 
     <!-- Templates -->
     <template id="template-tabla-horarios">
-      <div class="table-responsive" id="materia-aulas">
-        <h6>Aulas donde se dicta:</h6>
-        <table id="calendario" class="table table-bordered text-center">
-          <thead class="table-light">
-            <tr>
-              <th>Hora</th>
-              <th>Lunes</th>
-              <th>Martes</th>
-              <th>Miércoles</th>
-              <th>Jueves</th>
-              <th>Viernes</th>
-              <th>Sábado</th>
-              <th>Domingo</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">08:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">09:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">10:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">11:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">12:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">13:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">14:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">15:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">16:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">17:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">18:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">19:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">20:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">21:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <th scope="row">22:00</th><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <table id="calendario" class="table table-bordered text-center">
+        <thead class="table-light">
+          <tr>
+            <th>Hora</th>
+            <th>Lunes</th>
+            <th>Martes</th>
+            <th>Miércoles</th>
+            <th>Jueves</th>
+            <th>Viernes</th>
+            <th>Sábado</th>
+            <th>Domingo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">08:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">09:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">10:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">11:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">12:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">13:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">14:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">15:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">16:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">17:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">18:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">19:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">20:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">21:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <th scope="row">22:00</th><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+        </tbody>
+      </table>
     </template>
 
     <template id="template-botones-admin">

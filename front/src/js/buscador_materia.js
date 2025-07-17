@@ -9,10 +9,11 @@ function adminRemoveCalendar(e) {
       'Authorization': `Bearer ${localStorage.getItem("authToken")}`
     },
   });
-  const oldAulas = document.getElementById('materia-aulas');
+  const materiaAulas = document.getElementById('materia-aulas');
+  const oldAulas = document.getElementById('calendario');
   const templateTablaHorarios = document.getElementById('template-tabla-horarios');
   const clone = templateTablaHorarios.content.cloneNode(true);
-  tablaAulasContainer.replaceChild(clone, oldAulas);
+  materiaAulas.replaceChild(clone, oldAulas);
 }
 
 function adminSubmitForm(e) {
@@ -77,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectMateria = document.getElementById('select-materia');
   const btnBuscar = document.getElementById('btn-buscar-materia');
   const resultado = document.getElementById('resultado-materia');
-  const tablaAulasContainer = document.getElementById('tabla-aulas-container');
+  const materiaAulas = document.getElementById('materia-aulas');
   const materiaTitulo = document.getElementById('materia-titulo');
   const templateTablaHorarios = document.getElementById('template-tabla-horarios');
   const isAdmin = localStorage.getItem('userRole') === 'ADMIN';
@@ -108,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
           selectAula.appendChild(option);
         }
       })
-    materiaTitulo.after(clone);
+    document.getElementById('calendario-header').appendChild(clone);
   }
 
   let materiasData = {};
@@ -119,15 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return response.json();
     })
     .then(materias => {
-      selectMateria.innerHTML = ''; // Limpia primero por si recargás
 
-      const placeholderOption = document.createElement('option');
-      placeholderOption.textContent = 'Elegí una materia';
-      placeholderOption.disabled = true;
-      placeholderOption.selected = true;
-      placeholderOption.value = "";
-      selectMateria.appendChild(placeholderOption);
-      
       for (const materia of materias) {
         const option = document.createElement('option');
         option.value = materia.codigo;
@@ -182,11 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
-        const oldAulas = document.getElementById('materia-aulas');
+        const oldAulas = document.getElementById('calendario');
         if (oldAulas !== null) {
-          tablaAulasContainer.replaceChild(clone, oldAulas);
+          materiaAulas.replaceChild(clone, oldAulas);
         } else {
-          tablaAulasContainer.appendChild(clone);
+          materiaAulas.appendChild(clone);
         }
 
         resultado.classList.remove('d-none');
