@@ -34,17 +34,17 @@ export function setupRoomInfoPanel(mapView, roomDetails) {
     
 
 
-    const cleanName = clickedSpace.name.trim().toLowerCase();
+    const cleanName = clickedSpace.name.trim();
     //Me quedo solo con el numero de aula. Aula 403 -> 403. Aula 403b -> 403b. Baño piso 3 -> null
-    const match = cleanName.match(/^aula\s+(\d+[a-z]?)$/i);
+    const match = cleanName.match(/^aula\s+(\w+)$/i);
     let numAula = match ? match[1] : null;
     console.log("Nombre limpio:", cleanName);
-    console.log("Número de aula:", numAula);
     if (numAula === null) {
-      numAula = clickedSpace.name
-      console.log("No es aula. Valor de numAula:", numAula);
+      console.log("No es aula.");
+      return;
     }
 
+    console.log("Número de aula:", numAula);
     fetchAPI(`api/v1/aulas/${numAula}/atributos`)
         .then(response => {
           if (!response.ok) throw new Error('Error al cargar la información del aula');
