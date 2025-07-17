@@ -72,6 +72,7 @@ export function setupRoomInfoPanel(mapView, roomDetails) {
               ${pizarron || ""}
               ${banco || ""}
               ${enchufes || ""}
+              <div><a href="/buscador_por_aula.html?codigo=${numAula}"><i class="fas fa-circle-info"></i> Ver información del aula</a></div>
             </div>
           `;
         })
