@@ -53,15 +53,25 @@ export function setupRoomInfoPanel(mapView, roomDetails) {
         .then(atributosArray => {
           console.log("Atributos del aula:", atributosArray);
 
-          const pizarron = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'tipo pizarron')?.valor || 'Desconocido';
-          const banco = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'tipo banco')?.valor || 'Desconocido';
-          const enchufes = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'cantidad enchufes')?.valor || 'Desconocido';
+          let pizarron = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'tipo pizarron')?.valor;
+          let banco = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'tipo banco')?.valor;
+          let enchufes = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'cantidad enchufes')?.valor;
+
+          if (pizarron) {
+            pizarron = `<div><i class="fas fa-chalkboard"></i> ${pizarron}</div>`;
+          }
+          if (banco) {
+            banco = `<div><i class="fas fa-chair"></i> ${banco}</div>`;
+          }
+          if (enchufes) {
+            enchufes = `<div><i class="fas fa-plug"></i> ${enchufes} enchufe${enchufes > 1 ? "s" : ""}</div>`;
+          }
 
           infoDescription.innerHTML = `
             <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
-              <div><i class="fas fa-chalkboard"></i> ${pizarron}</div>
-              <div><i class="fas fa-chair"></i> ${banco}</div>
-              <div><i class="fas fa-plug"></i> ${enchufes} enchufes</div>
+              ${pizarron || ""}
+              ${banco || ""}
+              ${enchufes || ""}
             </div>
           `;
         })
