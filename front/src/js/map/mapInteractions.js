@@ -12,9 +12,6 @@ export function setupSpaceInteractions(mapView, mapData) {
   const roomList = document.getElementById("roomList");
   const goButton = document.getElementById("goRoomBotton");
 
-  const infoPanel = document.getElementById("room-info-panel");
-  infoPanel.style.display = 'none';
-
   const roomDetails = [
     { 
       name: "Aula 403", 
