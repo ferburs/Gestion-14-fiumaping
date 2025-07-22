@@ -41,6 +41,7 @@ export function setupRoomInfoPanel(mapView, roomDetails) {
     console.log("Nombre limpio:", cleanName);
     if (numAula === null) {
       console.log("No es aula.");
+      infoDescription.textContent = '';
       return;
     }
 
@@ -90,6 +91,5 @@ export function setupRoomInfoPanel(mapView, roomDetails) {
 
   closePanelButton.addEventListener("click", () => {
     infoPanel.style.display = 'none';
-    infoDescription.innerHTML = '';
   });
 }
