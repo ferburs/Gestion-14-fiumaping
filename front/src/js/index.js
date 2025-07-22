@@ -1,25 +1,19 @@
-import { getFullEndpoint } from './api.js';
+import { fetchAPI, getFullEndpoint } from './api.js';
 
 document.addEventListener("DOMContentLoaded", async function () {
 
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
 
-    if (token) {
+    if (urlParams.has("token")) {
+        const token = urlParams.get("token");
         try {
-            const response = await fetch(getFullEndpoint("api/v1/auth/user-info"), {
-                method: "GET",
+            const response = await fetchAPI("api/v1/auth/user-info", {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
             });
 
-            if (!response.ok) {
-                throw new Error("Token inválido");
-            }
-
             const userData = await response.json();
-            console.log("Usuario autenticado:", userData);
 
             // Podés guardar los datos o el token en localStorage si querés
             localStorage.setItem("authToken", token);
@@ -32,7 +26,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         } catch (error) {
             console.error("Error al autenticar:", error);
-            // Opcional: mostrar mensaje o redirigir al login
         }
     }
 
@@ -40,4 +33,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const loginButton = document.getElementById("login-admin-btn");
     loginButton.href = loginUrl;
+
+    if (urlParams.has("error")) {
+        const alertElem = document.getElementById("alert-error");
+        alertElem.innerText = urlParams.get("error");
+        alertElem.classList.remove('d-none');
+        window.history.replaceState(null, "", "?");
+    }
 });
