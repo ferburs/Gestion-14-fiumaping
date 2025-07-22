@@ -56,6 +56,7 @@ export function setupRoomInfoPanel(mapView, roomDetails) {
           let pizarron = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'tipo pizarron')?.valor;
           let banco = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'tipo banco')?.valor;
           let enchufes = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'cantidad enchufes')?.valor;
+          let capacidad = atributosArray.find(a => a.nombre_atributo.toLowerCase() === 'capacidad')?.valor;
 
           if (pizarron) {
             pizarron = `<div><i class="fas fa-chalkboard"></i> ${pizarron}</div>`;
@@ -66,12 +67,16 @@ export function setupRoomInfoPanel(mapView, roomDetails) {
           if (enchufes) {
             enchufes = `<div><i class="fas fa-plug"></i> ${enchufes} enchufe${enchufes > 1 ? "s" : ""}</div>`;
           }
+          if (capacidad) {
+            capacidad = `<div><i class="fas fa-users"></i> ${capacidad} alumno${capacidad > 1 ? "s" : ""}</div>`;
+          }
 
           infoDescription.innerHTML = `
             <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
               ${pizarron || ""}
               ${banco || ""}
               ${enchufes || ""}
+              ${capacidad || ""}
               <div><a href="/buscador_por_aula.html?codigo=${numAula}"><i class="fas fa-circle-info"></i> Ver información del aula</a></div>
             </div>
           `;
